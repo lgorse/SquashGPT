@@ -9,8 +9,6 @@ evidence/.venv
 
 # Virtual Environments
 .venv/
-venv/
-env/
 .env
 
 # Python
