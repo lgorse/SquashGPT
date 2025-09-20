@@ -1,3 +1,7 @@
+import os
+import time
+
+from dotenv import load_dotenv
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -5,10 +9,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import time
 
-def login_to_clublocker(username, password, driver):
-    """Navigate to clublocker.com and attempt login"""
+
+def login_to_clublocker(driver):
+    # Get credentials securely
+    load_dotenv()
+    username = os.getenv("username")
+    password = os.getenv("password")
 
     try:
         # Navigate to the website

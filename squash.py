@@ -1,3 +1,4 @@
+import argparse
 import getpass
 import json
 import os
@@ -13,6 +14,8 @@ import parsedatetime
 from dateutil import parser
 
 from dotenv import load_dotenv
+
+from flask import Flask, jsonify, request
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -20,12 +23,21 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+app = Flask(__name__)
+
 
 class Booking:
     def __init__(self, date, time, status=None):
         self.date = date
         self.time = time
         self.status = status
+
+    def to_dict(self):
+        return {
+            "date": self.date,
+            "time": self.time,
+            "status": self.status,
+        }
 
 
 def setup_driver():
@@ -55,24 +67,24 @@ def navigate_to_calendar(date, driver):
         print(f"An error occurred: {str(e)}")
 
 
-def main():
-    print("ClubLocker Booking Automation")
-    print("=" * 30)
+def request_to_bookings(booking_json):
+    booking_request = booking_json["bookings"]
+    print(booking_request)
+    bookings = []
+    for request in booking_request:
+        booking = Booking(request["date"], request["time"], request["status"])
+        bookings.append(booking)
+        print(request)
+        print(booking.status)
 
-    bookings = [
-        Booking("2025-09-16", "4:30 pm", None),
-        Booking("2025-09-17", "5:15 pm", None),
-        Booking("2025-09-18", "9:00 am", None),
-    ]
-    # Get credentials securely
-    load_dotenv()
-    username = os.getenv("username")
-    password = os.getenv("password")
+    return bookings
 
+
+def book_slots(bookings):
     driver = setup_driver()
 
     # Attempt login
-    login.login_to_clublocker(username, password, driver)
+    login.login_to_clublocker(driver)
 
     for booking in bookings:
         navigate_to_calendar(booking.date, driver)
@@ -88,6 +100,45 @@ def main():
     ##summarize booking
     for booking in bookings:
         print(f"Booking on {booking.date} at {booking.time}: {booking.status}")
+    return bookings
+
+
+@app.route("/book-courts", methods=["GET", "POST"])
+def book_courts():
+    data = request.get_json()
+    print(data)
+    if not data:
+        return jsonify({"status": "error", "message": "No bookings provided"}), 400
+    bookings = request_to_bookings(data)
+    confirmations = book_slots(bookings)
+    confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
+    response = json.dumps(confirmations_dict)
+    print(response)
+    return jsonify(response), 200
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Court Booking System")
+    parser.add_argument(
+        "--mode",
+        choices=["flask", "cli", "interactive"],
+        default="interactive",
+        help="How to run the application",
+    )
+    args, remaining = parser.parse_known_args()
+
+    if args.mode == "flask":
+        app.run(debug=True)
+    else:
+        json_booking = {
+            "bookings": [
+                {"date": "2025-09-16", "time": "4:30 pm", "status": None},
+                {"date": "2025-09-17", "time": "5:15 pm", "status": None},
+                {"date": "2025-09-18", "time": "9:00 am", "status": None},
+            ]
+        }
+        bookings = request_to_bookings(json_booking)
+        book_slots(bookings)
 
 
 if __name__ == "__main__":
@@ -95,9 +146,9 @@ if __name__ == "__main__":
 
 
 """
-* Update main core so we separate out the key function
-* Enable JSON ingestion
-* create API wrapper
+* Update main core so we separate out the key function DONE
+* Enable JSON ingestion: ingest JSON, convert to Booking objects, DONE
+* create API wrapper DONE
 * create Ngrok wrapper so I can call the API remotely
 * instruct Custom GPT
 """
