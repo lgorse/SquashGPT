@@ -28,8 +28,8 @@ app = Flask(__name__)
 
 class Booking:
     def __init__(self, date, time, status=None):
-        self.date = date
-        self.time = time
+        self.date = parser.parse(date).strftime("%Y-%m-%d")
+        self.time = parser.parse(time).strftime("%-I:%M %p").lower()
         self.status = status
 
     def to_dict(self):
@@ -132,7 +132,7 @@ def main():
     else:
         json_booking = {
             "bookings": [
-                {"date": "2025-09-16", "time": "4:30 pm", "status": None},
+                {"date": "September 21 2025", "time": "16:30", "status": None},
                 {"date": "2025-09-17", "time": "5:15 pm", "status": None},
                 {"date": "2025-09-18", "time": "9:00 am", "status": None},
             ]
