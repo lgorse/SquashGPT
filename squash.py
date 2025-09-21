@@ -118,8 +118,6 @@ def book_courts():
         return jsonify(response), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-    finally:
-        driver.quit()
 
 
 def main():
