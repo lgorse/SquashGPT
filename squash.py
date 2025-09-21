@@ -110,11 +110,14 @@ def book_courts():
     if not data:
         return jsonify({"status": "error", "message": "No bookings provided"}), 400
     bookings = request_to_bookings(data)
-    confirmations = book_slots(bookings)
-    confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
-    response = json.dumps(confirmations_dict)
-    print(response)
-    return jsonify(response), 200
+    try:
+        confirmations = book_slots(bookings)
+        confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
+        response = json.dumps(confirmations_dict)
+        print(response)
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 def main():
