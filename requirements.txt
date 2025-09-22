@@ -1,0 +1,10 @@
+attr==0.3.2
+Flask==3.1.2
+parsedatetime==2.6
+python-dotenv==1.1.1
+python_dateutil==2.9.0.post0
+selenium==4.35.0
+webdriver-manager==4.0.1
+requests==2.31.0
+
+

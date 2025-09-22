@@ -75,7 +75,7 @@ def parse_slot_time(separator, text):
 def find_slots(booking, driver):
     booking_time = parser.parse(booking.time)
 
-    print(f"Booking time: {booking_time.strftime("%-I:%M %p")} on {booking.date}")
+    print(f'Booking time: {booking_time.strftime("%-I:%M %p")} on {booking.date}')
     try:
         columns = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.slots"))
@@ -103,7 +103,8 @@ def find_slots(booking, driver):
 
 def reserve_slot(driver, element):
     wait = WebDriverWait(driver, 10)
-    element.click()
+    # element.click()
+    driver.execute_script("arguments[0].click();", element)
     try:
         modal = WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located(
