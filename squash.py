@@ -60,6 +60,14 @@ def setup_driver():
     chrome_options.add_argument("--disable-extensions")
     ## chrome_options.binary_location = "/usr/bin/google-chrome"
 
+    # Memory optimization (CRITICAL for Railway)
+    chrome_options.add_argument("--memory-pressure-off")
+    chrome_options.add_argument("--max_old_space_size=2048")  # Limit memory
+    chrome_options.add_argument("--no-zygote")
+    chrome_options.add_argument("--disable-background-timer-throttling")
+    chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+    chrome_options.add_argument("--disable-renderer-backgrounding")
+
     # Make sure you have ChromeDriver installed and in PATH
     driver = webdriver.Chrome(options=chrome_options)
     return driver
