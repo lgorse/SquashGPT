@@ -76,6 +76,7 @@ def setup_driver():
 def navigate_to_calendar(date, driver):
     url = f"https://clublocker.com/organizations/2270/reservations/{date}/grid"
     try:
+        print(f"Attempting to navigate to {url}")
         driver.get(url)
         current_url = driver.current_url
     except Exception as e:
@@ -95,12 +96,11 @@ def request_to_bookings(booking_json):
     return bookings
 
 
-def book_slots(bookings):
-    driver = setup_driver()
+def book_slots(bookings, driver):
 
     # Attempt login
     login.login_to_clublocker(driver)
-
+    print("booking slots")
     for booking in bookings:
         navigate_to_calendar(booking.date, driver)
         slot = book.find_slots(booking, driver)
@@ -121,18 +121,21 @@ def book_slots(bookings):
 @app.route("/book-courts", methods=["GET", "POST"])
 def book_courts():
     data = request.get_json()
+    driver = setup_driver()
     print(data)
     if not data:
         return jsonify({"status": "error", "message": "No bookings provided"}), 400
     bookings = request_to_bookings(data)
     try:
-        confirmations = book_slots(bookings)
+        confirmations = book_slots(bookings, driver)
         confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
         response = json.dumps(confirmations_dict)
         print(response)
         return jsonify(response), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        driver.quit()
 
 
 def main():
@@ -151,15 +154,14 @@ def main():
         port = int(os.environ.get("PORT", 8080))
         app.run(host="0.0.0.0", port=port)
     else:
+        driver = setup_driver()
         json_booking = {
             "bookings": [
-                {"date": "September 22 2025", "time": "9:00 am", "status": None},
-                {"date": "2025-09-17", "time": "5:15 pm", "status": None},
-                {"date": "2025-09-18", "time": "9:00 am", "status": None},
+                {"date": "September 25 2025", "time": "6:00 pm", "status": None},
             ]
         }
         bookings = request_to_bookings(json_booking)
-        book_slots(bookings)
+        book_slots(bookings, driver)
 
 
 if __name__ == "__main__":

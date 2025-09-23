@@ -80,6 +80,7 @@ def find_slots(booking, driver):
         columns = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.slots"))
         )
+        print(f"column length: {len(columns)}")
         columns.pop()
         elements = []
         for column in columns:
@@ -119,7 +120,7 @@ def reserve_slot(driver, element):
                 By.CSS_SELECTOR, "button.mat-raised-button"
             )
         )
-        button.click()
+        driver.execute_script("arguments[0].click();", button)
         try:
             status = booking_listener.confirm()
             return True, "Booking Confirmed"
@@ -164,7 +165,8 @@ def book_prime_time(modal, driver):
                 lambda driver: player_input.find_element(By.XPATH, x_path)
             )
             if dropdown:
-                dropdown.click()
+                # dropdown.click()
+                driver.execute_script("arguments[0].click();", dropdown)
             return True
         except Exception as error:
             print(f"Error type: {type(error).__name__}")

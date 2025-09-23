@@ -5,7 +5,16 @@ FROM selenium/standalone-chrome:latest
 USER root
 
 # Install Python
-RUN apt-get update && apt-get install -y python3 python3-pip && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /app
 
@@ -24,6 +33,8 @@ RUN mkdir -p /home/seluser/.cache/selenium && \
 # Set environment variables
 ENV CHROME_BIN=/usr/bin/google-chrome
 ENV DISPLAY=:99
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # Create app directory owned by seluser
 RUN chown -R seluser:seluser /app

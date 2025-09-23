@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 def login_to_clublocker(driver):
     # Get credentials securely
+    timeout = 10
     load_dotenv()
     username = os.getenv("username")
     password = os.getenv("password")
@@ -23,7 +24,7 @@ def login_to_clublocker(driver):
         driver.get("https://clublocker.com/")
 
         # Wait for page to load
-        time.sleep(2)
+        # time.sleep(2)
 
         # Try to find username/email field
         username_selectors = [
@@ -37,20 +38,46 @@ def login_to_clublocker(driver):
         ]
 
         username_field = None
-        for selector in username_selectors:
+        password_field = None
+        try:
+            username_selector = "//input[@name='username']"
+            username_field = WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.XPATH, username_selector))
+            )
+        except Exception as error:
+            print(f"Error type: {type(error).__name__}")
+
+        try:
+            password_selector = "//input[@name='password']"
+            password_field = WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.XPATH, password_selector))
+            )
+        except Exception as error:
+            print(f"Error type: {type(error).__name__}")
+
+        """for selector in username_selectors:
             try:
                 if selector.startswith("//"):
-                    username_field = driver.find_element(By.XPATH, selector)
+                    username_field = WebDriverWait(driver, timeout).until(
+                        EC.presence_of_element_located((By.XPATH, selector))
+                    )
+                    ##driver.find_element(By.XPATH, selector)
                 elif selector.startswith("#"):
-                    username_field = driver.find_element(By.ID, selector[1:])
+                    username_field = WebDriverWait(driver, timeout).until(
+                        EC.presence_of_element_located((By.Id, selector[1:]))
+                    )
+                    # username_field = driver.find_element(By.ID, selector[1:])
                 else:
-                    username_field = driver.find_element(By.CSS_SELECTOR, selector)
+                    username_field = WebDriverWait(driver, timeout).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+                    )
+                # username_field = driver.find_element(By.CSS_SELECTOR, selector)
                 break
             except:
-                continue
+                continue"""
 
         # Try to find password field
-        password_field = None
+        """password_field = None
         password_selectors = [
             "//input[@type='password']",
             "//input[@name='password']",
@@ -60,14 +87,23 @@ def login_to_clublocker(driver):
         for selector in password_selectors:
             try:
                 if selector.startswith("//"):
-                    password_field = driver.find_element(By.XPATH, selector)
+                    password_field = WebDriverWait(driver, timeout).until(
+                        EC.presence_of_element_located((By.XPATH, selector))
+                    )
+                    # password_field = driver.find_element(By.XPATH, selector)
                 elif selector.startswith("#"):
-                    password_field = driver.find_element(By.ID, selector[1:])
+                    password_field = WebDriverWait(driver, timeout).until(
+                        EC.presence_of_element_located((By.Id, selector[1:]))
+                    )
+                    # driver.find_element(By.ID, selector[1:])
                 else:
-                    password_field = driver.find_element(By.CSS_SELECTOR, selector)
+                    password_field = WebDriverWait(driver, timeout).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+                    )
+                    # driver.find_element(By.CSS_SELECTOR, selector)
                 break
             except:
-                continue
+                continue"""
 
         if username_field and password_field:
             print("Found login fields, entering credentials...")
@@ -93,34 +129,56 @@ def login_to_clublocker(driver):
             ]
 
             login_element = None
-            for selector in login_selectors:
+            try:
+                login_selector = "//button[@type='submit']"
+                login_element = WebDriverWait(driver, timeout).until(
+                    EC.presence_of_element_located((By.XPATH, login_selector))
+                )
+            except Exception as error:
+                print(f"Error type: {type(error).__name__}")
+
+            """for selector in login_selectors:
                 try:
                     if selector.startswith("//"):
-                        login_element = driver.find_element(By.XPATH, selector)
+                        login_element = WebDriverWait(driver, timeout).until(
+                            EC.presence_of_element_located((By.XPATH, selector))
+                        )
+                        # driver.find_element(By.XPATH, selector)
                     elif selector.startswith("#"):
-                        login_element = driver.find_element(By.ID, selector[1:])
+                        login_element = WebDriverWait(driver, timeout).until(
+                            EC.presence_of_element_located((By.Id, selector[1:]))
+                        )
+                        # driver.find_element(By.ID, selector[1:])
                     elif selector.startswith("."):
-                        login_element = driver.find_element(By.CLASS_NAME, selector[1:])
+                        login_element = WebDriverWait(driver, timeout).until(
+                            EC.presence_of_element_located(
+                                (By.CLASS_NAME, selector[1:])
+                            )
+                        )
+                        # driver.find_element(By.CLASS_NAME, selector[1:])
                     else:
-                        login_element = driver.find_element(By.CSS_SELECTOR, selector)
+                        login_element = WebDriverWait(driver, timeout).until(
+                            EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+                        )
+                        # driver.find_element(By.CSS_SELECTOR, selector)
                     break
                 except:
-                    continue
+                    continue"""
 
             if login_element:
                 print("Found login element, clicking...")
                 login_element.click()
-                """ time.sleep(2) """
 
                 # Check if login was successful (you may need to customize this)
                 current_url = driver.current_url
+                WebDriverWait(driver, timeout).until(EC.url_changes(current_url))
                 print(f"Current URL after login attempt: {current_url}")
 
                 # Keep browser open for a bit to see results
                 print(
                     "Login attempt completed. Browser will remain open for 10 seconds..."
                 )
-                """ time.sleep(10) """
+                # time.sleep(5)
 
             else:
                 print("Could not find submit button")
