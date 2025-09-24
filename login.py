@@ -17,7 +17,6 @@ def login_to_clublocker(driver):
     load_dotenv()
     username = os.getenv("username")
     password = os.getenv("password")
-    password = "floup"
 
     try:
         # Navigate to the website
