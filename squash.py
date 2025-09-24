@@ -6,10 +6,10 @@ import time
 from collections import namedtuple
 from datetime import datetime
 
-import book
-
 # Custom classes
+import court
 import login
+
 import parsedatetime
 from dateutil import parser
 
@@ -24,20 +24,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 app = Flask(__name__)
-
-
-class Booking:
-    def __init__(self, date, time, status=None):
-        self.date = parser.parse(date).strftime("%Y-%m-%d")
-        self.time = parser.parse(time).strftime("%-I:%M %p").lower()
-        self.status = status
-
-    def to_dict(self):
-        return {
-            "date": self.date,
-            "time": self.time,
-            "status": self.status,
-        }
 
 
 def setup_driver(mode=None):
@@ -83,38 +69,6 @@ def navigate_to_calendar(date, driver):
         print(f"An error occurred: {str(e)}")
 
 
-def request_to_bookings(booking_json):
-    booking_request = booking_json["bookings"]
-    print(booking_request)
-    bookings = []
-    for request in booking_request:
-        booking = Booking(request["date"], request["time"], request["status"])
-        bookings.append(booking)
-        print(request)
-        print(booking.status)
-
-    return bookings
-
-
-def book_slots(bookings, driver):
-    print("booking slots")
-    for booking in bookings:
-        navigate_to_calendar(booking.date, driver)
-        slot = book.find_slots(booking, driver)
-        booking_status = ()
-        if slot:
-            booking_status = book.reserve_slot(driver, slot)
-        else:
-            booking_status = (False, "No slots found")
-        print(booking_status[1])
-        booking.status = booking_status[1]
-
-    ##summarize booking
-    for booking in bookings:
-        print(f"Booking on {booking.date} at {booking.time}: {booking.status}")
-    return bookings
-
-
 @app.route("/book-courts", methods=["GET", "POST"])
 def book_courts():
     data = request.get_json()
@@ -122,10 +76,10 @@ def book_courts():
     print(data)
     if not data:
         return jsonify({"status": "error", "message": "No bookings provided"}), 400
-    bookings = request_to_bookings(data)
+    bookings = court.request_to_bookings(data)
     try:
         login.login_to_clublocker(driver)
-        confirmations = book_slots(bookings, driver)
+        confirmations = court.book_slots(bookings, driver)
         confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
         response = json.dumps(confirmations_dict)
         print(response)
@@ -158,22 +112,12 @@ def main():
             ]
         }
         try:
-            bookings = request_to_bookings(json_booking)
+            bookings = court.request_to_bookings(json_booking)
             login.login_to_clublocker(driver)
-            book_slots(bookings, driver)
+            court.book_slots(bookings, driver)
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)}), 500
 
 
 if __name__ == "__main__":
     main()
-
-
-"""
-* Update main core so we separate out the key function DONE
-* Enable JSON ingestion: ingest JSON, convert to Booking objects, DONE
-* create API wrapper DONE
-* create Ngrok wrapper so I can call the API remotely DONE with Cloudflare
-* instruct Custom GPT DONE in development
-* Push to production
-"""

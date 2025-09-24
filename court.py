@@ -4,9 +4,12 @@ import time
 from datetime import datetime
 
 import parsedatetime
+
+import squash
 from dateutil import parser
 from dotenv import load_dotenv
 
+from flask import Flask, jsonify, request
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.chrome.options import Options
@@ -14,6 +17,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+
+class Booking:
+    def __init__(self, date, time, status=None):
+        self.date = parser.parse(date).strftime("%Y-%m-%d")
+        self.time = parser.parse(time).strftime("%-I:%M %p").lower()
+        self.status = status
+
+    def to_dict(self):
+        return {
+            "date": self.date,
+            "time": self.time,
+            "status": self.status,
+        }
 
 
 class ToastError(Exception):
@@ -172,3 +189,34 @@ def book_prime_time(modal, driver):
             return False
     else:
         return True
+
+
+def request_to_bookings(booking_json):
+    booking_request = booking_json["bookings"]
+    print(booking_request)
+    bookings = []
+    for request in booking_request:
+        booking = Booking(request["date"], request["time"], request["status"])
+        bookings.append(booking)
+        print(request)
+        print(booking.status)
+    return bookings
+
+
+def book_slots(bookings, driver):
+    print("booking slots")
+    for booking in bookings:
+        squash.navigate_to_calendar(booking.date, driver)
+        slot = find_slots(booking, driver)
+        booking_status = ()
+        if slot:
+            booking_status = reserve_slot(driver, slot)
+        else:
+            booking_status = (False, "No slots found")
+        print(booking_status[1])
+        booking.status = booking_status[1]
+
+    ##summarize booking
+    for booking in bookings:
+        print(f"Booking on {booking.date} at {booking.time}: {booking.status}")
+    return bookings
