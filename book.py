@@ -104,7 +104,6 @@ def find_slots(booking, driver):
 
 def reserve_slot(driver, element):
     wait = WebDriverWait(driver, 10)
-    # element.click()
     driver.execute_script("arguments[0].click();", element)
     try:
         modal = WebDriverWait(driver, 10).until(

@@ -40,11 +40,11 @@ class Booking:
         }
 
 
-def setup_driver():
-    """Set up Chrome WebDriver with basic options"""
+def setup_driver(mode=None):
+    print(f"Setting up Chrome WebDrive {mode}")
     chrome_options = Options()
-    # Uncomment the line below to run in headless mode
-    chrome_options.add_argument("--headless")
+    if not mode == "browser":
+        chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
@@ -97,9 +97,6 @@ def request_to_bookings(booking_json):
 
 
 def book_slots(bookings, driver):
-
-    # Attempt login
-    login.login_to_clublocker(driver)
     print("booking slots")
     for booking in bookings:
         navigate_to_calendar(booking.date, driver)
@@ -127,6 +124,7 @@ def book_courts():
         return jsonify({"status": "error", "message": "No bookings provided"}), 400
     bookings = request_to_bookings(data)
     try:
+        login.login_to_clublocker(driver)
         confirmations = book_slots(bookings, driver)
         confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
         response = json.dumps(confirmations_dict)
@@ -142,8 +140,7 @@ def main():
     parser = argparse.ArgumentParser(description="Court Booking System")
     parser.add_argument(
         "--mode",
-        choices=["flask", "prod", "interactive"],
-        default="interactive",
+        choices=["flask", "prod", "interactive", "browser"],
         help="How to run the application",
     )
     args, remaining = parser.parse_known_args()
@@ -154,14 +151,18 @@ def main():
         port = int(os.environ.get("PORT", 8080))
         app.run(host="0.0.0.0", port=port)
     else:
-        driver = setup_driver()
+        driver = setup_driver(args.mode)
         json_booking = {
             "bookings": [
                 {"date": "September 25 2025", "time": "6:00 pm", "status": None},
             ]
         }
-        bookings = request_to_bookings(json_booking)
-        book_slots(bookings, driver)
+        try:
+            bookings = request_to_bookings(json_booking)
+            login.login_to_clublocker(driver)
+            book_slots(bookings, driver)
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
 
 
 if __name__ == "__main__":
