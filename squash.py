@@ -132,16 +132,17 @@ def main():
         app.run(host="0.0.0.0", port=port)
     else:
         driver = setup_driver(args.mode)
-        try:
+        """try:
             login.login_to_clublocker(driver)
             navigate_to_matches(driver)
             bookings = court.my_reservations(driver)
             return bookings
         except Exception as e:
-            return jsonify({"status": "error", "message": str(e)}), 500
-        """json_booking = {
+            #return jsonify({"status": "error", "message": str(e)}), 500
+            print(f"{e}")"""
+        json_booking = {
             "bookings": [
-                {"date": "September 25 2025", "time": "6:00 pm", "status": None},
+                {"date": "October 6 2025", "time": "9:00 am", "status": None},
             ]
         }
         try:
@@ -149,8 +150,8 @@ def main():
             login.login_to_clublocker(driver)
             court.book_slots(bookings, driver)
         except Exception as e:
-            return jsonify({"status": "error", "message": str(e)}), 500
-            """
+            return str(e)
+            
 
 
 if __name__ == "__main__":

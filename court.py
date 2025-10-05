@@ -8,6 +8,7 @@ import parsedatetime
 import squash
 from dateutil import parser
 from dotenv import load_dotenv
+import re
 
 from flask import Flask, jsonify, request
 from selenium import webdriver
@@ -20,17 +21,30 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Booking:
-    def __init__(self, date, time, status=None):
+    def __init__(self, date, time, status=None, court=None):
         self.date = parser.parse(date).strftime("%Y-%m-%d")
         self.time = parser.parse(time).strftime("%-I:%M %p").lower()
         self.status = status
+        self.court = self.extract_number(court)
 
     def to_dict(self):
         return {
             "date": self.date,
             "time": self.time,
             "status": self.status,
+            "court": self.court
         }
+    
+    def extract_number(self, text):
+        if text:
+            print(f"extract {text}")
+            match = re.search(r'-?\d+\.?\d*', text)
+            if match:
+                num_str = match.group()
+                return int(num_str)
+        return None
+
+
 
 
 class ToastError(Exception):
@@ -241,13 +255,18 @@ def my_reservations(driver):
             match_info = wait.until(
                 lambda driver: match_settings.find_elements(By.XPATH, "./*")
             )
+            
             date = match_info[0].text
             time = match_info[1].text
-            booking =Booking(date, time)
-            print(f"date:{booking.date} and time: {booking.time}")
+            court = match_info[2].text
+            print(f"{match_info[2].text}")
+            booking =Booking(date, time, None, court)
+            print(f"made it here")
+            print(f"date:{booking.date} and time: {booking.time} and court:{booking.court}")
             bookings.append(booking)
         return bookings
     except Exception as e:
+        print(f"Error:{e}")
         return str(e)
     """
     1. Find elements with div .upcoming match
