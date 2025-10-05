@@ -68,6 +68,32 @@ def navigate_to_calendar(date, driver):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
+def navigate_to_matches(driver):
+    load_dotenv()
+    userid=os.getenv('userid')
+    url = f"https://clublocker.com/users/{userid}/matches"
+    try:
+        print(f"Attempting to navigate to {url}")
+        driver.get(url)
+        current_url = driver.current_url
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        
+@app.route("/reservations", methods=["GET"])
+def reservations():
+    driver = setup_driver()
+    try:
+        login.login_to_clublocker(driver)
+        navigate_to_matches(driver)
+        bookings = court.my_reservations(driver)
+        bookings_dict = [booking.to_dict() for booking in bookings]
+        response = json.dumps(bookings_dict)
+        print(response)
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        driver.quit()  
 
 @app.route("/book-courts", methods=["GET", "POST"])
 def book_courts():
@@ -106,7 +132,14 @@ def main():
         app.run(host="0.0.0.0", port=port)
     else:
         driver = setup_driver(args.mode)
-        json_booking = {
+        try:
+            login.login_to_clublocker(driver)
+            navigate_to_matches(driver)
+            bookings = court.my_reservations(driver)
+            return bookings
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
+        """json_booking = {
             "bookings": [
                 {"date": "September 25 2025", "time": "6:00 pm", "status": None},
             ]
@@ -117,6 +150,7 @@ def main():
             court.book_slots(bookings, driver)
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)}), 500
+            """
 
 
 if __name__ == "__main__":

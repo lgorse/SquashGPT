@@ -220,3 +220,37 @@ def book_slots(bookings, driver):
     for booking in bookings:
         print(f"Booking on {booking.date} at {booking.time}: {booking.status}")
     return bookings
+
+
+def my_reservations(driver):
+    wait = WebDriverWait(driver, 3)
+    try:
+        upcoming_matches =  wait.until(
+                EC.presence_of_all_elements_located
+                (
+                    (By.XPATH, "//div[contains(@class, 'upcoming-match') and .//div[contains(@class, 'event-name') and text()='Squash Zone']]"
+                     )
+                )
+            )
+        print(len(upcoming_matches))
+        bookings = []
+        for match in upcoming_matches:
+            match_settings = wait.until(
+                lambda driver: match.find_element(By.CSS_SELECTOR, ".match-setting")
+            )
+            match_info = wait.until(
+                lambda driver: match_settings.find_elements(By.XPATH, "./*")
+            )
+            date = match_info[0].text
+            time = match_info[1].text
+            booking =Booking(date, time)
+            print(f"date:{booking.date} and time: {booking.time}")
+            bookings.append(booking)
+        return bookings
+    except Exception as e:
+        return str(e)
+    """
+    1. Find elements with div .upcoming match
+    2. Make sure these are at squash zone
+    3. Get the date and time
+    """
