@@ -2,6 +2,7 @@ import json
 import os
 import time
 from datetime import datetime
+import traceback
 
 import parsedatetime
 
@@ -37,7 +38,6 @@ class Booking:
     
     def extract_number(self, text):
         if text:
-            print(f"extract {text}")
             match = re.search(r'-?\d+\.?\d*', text)
             if match:
                 num_str = match.group()
@@ -124,7 +124,6 @@ def find_slots(booking, driver):
                 return None
         for element in elements:
             start_time = parse_slot_time(" - ", element.get_attribute("title"))
-            ##print(f"start_time: {start_time.strftime('%H:%M %p')}")
             if start_time.strftime("%-I:%M %p") == booking_time.strftime("%-I:%M %p"):
                 return element
         return None
@@ -236,40 +235,31 @@ def book_slots(bookings, driver):
     return bookings
 
 
-def my_reservations(driver):
-    wait = WebDriverWait(driver, 3)
+    
+
+
+def my_reservations(date, name, driver):
+    bookings = []
     try:
-        upcoming_matches =  wait.until(
-                EC.presence_of_all_elements_located
-                (
-                    (By.XPATH, "//div[contains(@class, 'upcoming-match') and .//div[contains(@class, 'event-name') and text()='Squash Zone']]"
-                     )
-                )
-            )
-        print(len(upcoming_matches))
-        bookings = []
-        for match in upcoming_matches:
-            match_settings = wait.until(
-                lambda driver: match.find_element(By.CSS_SELECTOR, ".match-setting")
-            )
-            match_info = wait.until(
-                lambda driver: match_settings.find_elements(By.XPATH, "./*")
-            )
-            
-            date = match_info[0].text
-            time = match_info[1].text
-            court = match_info[2].text
-            print(f"{match_info[2].text}")
-            booking =Booking(date, time, None, court)
-            print(f"made it here")
-            print(f"date:{booking.date} and time: {booking.time} and court:{booking.court}")
-            bookings.append(booking)
+        columns = WebDriverWait(driver, 5).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.slots"))
+        )
+        columns.pop()
+        for index, column in enumerate(columns):
+            col_num = index+1
+            try:
+                slots = column.find_elements(By.CSS_SELECTOR, ".slot.match")
+                for slot in slots:
+                    title = slot.get_attribute("title")
+                    if title and name in title:
+                        start_time = parse_slot_time(" - ", title)
+                        booking = Booking(date, start_time.strftime('%I:%M %p'), None, str(col_num))
+                        print(f"Found a booking on {booking.date} at {booking.time} on Court {booking.court}")
+                        bookings.append(booking)
+            except TimeoutException as e:
+                print("No slot found")
+            except NoSuchElementException as e:
+                print(f"An  error occurred: {str(e)}")
         return bookings
     except Exception as e:
         print(f"Error:{e}")
-        return str(e)
-    """
-    1. Find elements with div .upcoming match
-    2. Make sure these are at squash zone
-    3. Get the date and time
-    """

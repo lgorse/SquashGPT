@@ -4,7 +4,7 @@ import json
 import os
 import time
 from collections import namedtuple
-from datetime import datetime
+from datetime import datetime, timedelta, date
 
 # Custom classes
 import court
@@ -58,6 +58,12 @@ def setup_driver(mode=None):
     driver = webdriver.Chrome(options=chrome_options)
     return driver
 
+def booking_window():
+    today = datetime.today()
+    booking_window = [(today + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(5)]
+    print(f"Booking window:{booking_window}")
+    return booking_window
+
 
 def navigate_to_calendar(date, driver):
     url = f"https://clublocker.com/organizations/2270/reservations/{date}/grid"
@@ -83,9 +89,15 @@ def navigate_to_matches(driver):
 def reservations():
     driver = setup_driver()
     try:
+        load_dotenv()
+        full_name=os.getenv('full_name')
+        days = booking_window()
+        bookings = []
         login.login_to_clublocker(driver)
-        navigate_to_matches(driver)
-        bookings = court.my_reservations(driver)
+        for day in days:
+            navigate_to_calendar(day, driver)
+            daily_bookings = court.my_reservations(day, full_name, driver)
+            bookings.extend(daily_bookings)
         bookings_dict = [booking.to_dict() for booking in bookings]
         response = json.dumps(bookings_dict)
         print(response)
@@ -132,27 +144,45 @@ def main():
         app.run(host="0.0.0.0", port=port)
     else:
         driver = setup_driver(args.mode)
-        """try:
+        try: 
+            load_dotenv()
+            full_name=os.getenv('full_name')
+            days = booking_window()
+            bookings = []
             login.login_to_clublocker(driver)
-            navigate_to_matches(driver)
-            bookings = court.my_reservations(driver)
-            return bookings
+            for day in days:
+                navigate_to_calendar(day, driver)
+                daily_bookings = court.my_reservations(day, full_name, driver)
+                bookings.extend(daily_bookings)
+            bookings_dict = [booking.to_dict() for booking in bookings]
+            response = json.dumps(bookings_dict)
         except Exception as e:
-            #return jsonify({"status": "error", "message": str(e)}), 500
-            print(f"{e}")"""
-        json_booking = {
-            "bookings": [
-                {"date": "October 6 2025", "time": "9:00 am", "status": None},
-            ]
-        }
-        try:
-            bookings = court.request_to_bookings(json_booking)
-            login.login_to_clublocker(driver)
-            court.book_slots(bookings, driver)
-        except Exception as e:
-            return str(e)
+            print(f"{e}")
+        
+       
             
 
 
 if __name__ == "__main__":
     main()
+
+
+"""try:
+    login.login_to_clublocker(driver)
+    navigate_to_matches(driver)
+    bookings = court.my_reservations(driver)
+    return bookings
+except Exception as e:
+    #return jsonify({"status": "error", "message": str(e)}), 500
+    print(f"{e}")
+json_booking = {
+    "bookings": [
+        {"date": "October 6 2025", "time": "9:00 am", "status": None},
+    ]
+}
+try:
+    bookings = court.request_to_bookings(json_booking)
+    login.login_to_clublocker(driver)
+    court.book_slots(bookings, driver)
+except Exception as e:
+    return str(e)"""
