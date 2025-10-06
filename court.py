@@ -68,6 +68,7 @@ class BookingListener:
             "maximum",
             "too far ahead",
             "back-to-back",
+            "does not allow"
         ]
 
         try:
