@@ -238,9 +238,7 @@ def book_slots(bookings, driver):
 
     
 
-
 def my_reservations(date, name, driver):
-    bookings = []
     try:
         columns = WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.slots"))
@@ -256,11 +254,44 @@ def my_reservations(date, name, driver):
                         start_time = parse_slot_time(" - ", title)
                         booking = Booking(date, start_time.strftime('%I:%M %p'), None, str(col_num))
                         print(f"Found a booking on {booking.date} at {booking.time} on Court {booking.court}")
-                        bookings.append(booking)
+                        return booking, slot
             except TimeoutException as e:
                 print("No slot found")
             except NoSuchElementException as e:
                 print(f"An  error occurred: {str(e)}")
-        return bookings
+        return None
     except Exception as e:
         print(f"Error:{e}")
+
+"""def find_slot(date,name, driver):
+    try:
+        columns = WebDriverWait(driver, 5).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.slots"))
+        )
+        columns.pop()
+        for index, column in enumerate(columns):
+            col_num = index+1
+            try:
+                slots = column.find_elements(By.CSS_SELECTOR, ".slot.match")
+                for slot in slots:
+                    title = slot.get_attribute("title")
+                    if title and name in title:
+                        start_time = parse_slot_time(" - ", title)
+                        booking = Booking(date, start_time.strftime('%I:%M %p'), None, str(col_num))
+                        print(f"Found a booking on {booking.date} at {booking.time} on Court {booking.court}")
+                        return booking, slot
+            except TimeoutException as e:
+                print("No slot found")
+            except NoSuchElementException as e:
+                print(f"An  error occurred: {str(e)}")
+        return None
+    except Exception as e:
+        print(f"Error:{e}")"""
+    
+
+def delete_booking(date, name, driver):
+    slot = my_reservations(date, name, driver)[1]
+    if slot:
+        driver.execute_script("arguments[0].click();", slot)
+
+        

@@ -96,8 +96,8 @@ def reservations():
         login.login_to_clublocker(driver)
         for day in days:
             navigate_to_calendar(day, driver)
-            daily_bookings = court.my_reservations(day, full_name, driver)
-            bookings.extend(daily_bookings)
+            daily_booking = court.my_reservations(day, full_name, driver)[0]
+            bookings.append(daily_booking)
         bookings_dict = [booking.to_dict() for booking in bookings]
         response = json.dumps(bookings_dict)
         print(response)
@@ -152,10 +152,11 @@ def main():
             login.login_to_clublocker(driver)
             for day in days:
                 navigate_to_calendar(day, driver)
-                daily_bookings = court.my_reservations(day, full_name, driver)
-                bookings.extend(daily_bookings)
+                daily_booking = court.my_reservations(day, full_name, driver)[0]
+                bookings.append(daily_booking)
             bookings_dict = [booking.to_dict() for booking in bookings]
             response = json.dumps(bookings_dict)
+            print(response)
         except Exception as e:
             print(f"{e}")
         
