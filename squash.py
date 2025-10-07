@@ -145,18 +145,16 @@ def main():
     else:
         driver = setup_driver(args.mode)
         try: 
+            date = "2025-10-07"
             load_dotenv()
             full_name=os.getenv('full_name')
-            days = booking_window()
-            bookings = []
             login.login_to_clublocker(driver)
-            for day in days:
-                navigate_to_calendar(day, driver)
-                daily_booking = court.my_reservations(day, full_name, driver)[0]
-                bookings.append(daily_booking)
-            bookings_dict = [booking.to_dict() for booking in bookings]
-            response = json.dumps(bookings_dict)
-            print(response)
+            navigate_to_calendar(date, driver)
+            booking = court.delete_booking(date, full_name, driver)
+            if booking:
+                print(f"Booking status:{booking.status} of booking on {booking.date} at {booking.time} for court {booking.court}")
+            else:
+                print(f"Error: no slot found")
         except Exception as e:
             print(f"{e}")
         
@@ -168,22 +166,11 @@ if __name__ == "__main__":
     main()
 
 
-"""try:
-    login.login_to_clublocker(driver)
-    navigate_to_matches(driver)
-    bookings = court.my_reservations(driver)
-    return bookings
-except Exception as e:
-    #return jsonify({"status": "error", "message": str(e)}), 500
-    print(f"{e}")
-json_booking = {
-    "bookings": [
-        {"date": "October 6 2025", "time": "9:00 am", "status": None},
-    ]
-}
-try:
-    bookings = court.request_to_bookings(json_booking)
-    login.login_to_clublocker(driver)
-    court.book_slots(bookings, driver)
-except Exception as e:
-    return str(e)"""
+"""
+1. Make deletion handling robust to errors and toast warnings
+2. Shift to app routing
+3. Return 500 error if no slot found
+4. Return 200 JSON if booking found
+---
+5. Make sure ChatGPT always Deletes before creating a new booking if I make a Modify request
+"""

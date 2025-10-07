@@ -68,7 +68,9 @@ class BookingListener:
             "maximum",
             "too far ahead",
             "back-to-back",
-            "does not allow"
+            "does not allow",
+            "cannot enter a score",
+            "less than"
         ]
 
         try:
@@ -259,39 +261,60 @@ def my_reservations(date, name, driver):
                 print("No slot found")
             except NoSuchElementException as e:
                 print(f"An  error occurred: {str(e)}")
-        return None
+        return None, None
     except Exception as e:
         print(f"Error:{e}")
 
-"""def find_slot(date,name, driver):
-    try:
-        columns = WebDriverWait(driver, 5).until(
-            EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.slots"))
-        )
-        columns.pop()
-        for index, column in enumerate(columns):
-            col_num = index+1
-            try:
-                slots = column.find_elements(By.CSS_SELECTOR, ".slot.match")
-                for slot in slots:
-                    title = slot.get_attribute("title")
-                    if title and name in title:
-                        start_time = parse_slot_time(" - ", title)
-                        booking = Booking(date, start_time.strftime('%I:%M %p'), None, str(col_num))
-                        print(f"Found a booking on {booking.date} at {booking.time} on Court {booking.court}")
-                        return booking, slot
-            except TimeoutException as e:
-                print("No slot found")
-            except NoSuchElementException as e:
-                print(f"An  error occurred: {str(e)}")
-        return None
-    except Exception as e:
-        print(f"Error:{e}")"""
     
 
 def delete_booking(date, name, driver):
-    slot = my_reservations(date, name, driver)[1]
+    booking, slot = my_reservations(date, name, driver)
+    wait = WebDriverWait(driver, 5)
     if slot:
-        driver.execute_script("arguments[0].click();", slot)
-
+        status, message = delete_slot(driver, slot)
+        if status:
+            booking.status = message
+            return booking
+    else:
+        return None
         
+
+
+def delete_slot(driver, slot):
+    wait = WebDriverWait(driver, 5)
+    driver.execute_script("arguments[0].click();", slot)
+    booking_listener = BookingListener(driver)
+    try:
+        # Click delete button
+        delete_button = wait.until(
+            EC.element_to_be_clickable((
+                By.XPATH,
+                "//button[contains(@class, 'mat-raised-button')][.//span[normalize-space()='Delete']]"
+            ))
+        )
+        driver.execute_script("arguments[0].click();", delete_button)
+
+        # Click confirmation button
+        confirm_button = wait.until(
+            EC.element_to_be_clickable((
+                By.XPATH,
+                "//button[contains(@class, 'mat-raised-button')][.//span[normalize-space()='Yes']]"
+            ))
+        )
+        driver.execute_script("arguments[0].click();", confirm_button)
+
+        # Check for error toasts
+        try:
+            status = booking_listener.confirm()
+            return True, "Cancellation Confirmed"
+        except ToastError as e:
+            return False, e.toast_text
+        except TimeoutException:
+            return True, "Cancellation successful"
+    except (NoSuchElementException, TimeoutException) as e:
+        error_type = "not found" if isinstance(e, NoSuchElementException) else "timeout"
+        print(f"Delete element {error_type}: {str(e)}")
+        return False, f"Delete element {error_type}"
+    except Exception as e:
+        print(f"Error with delete element: {e}")
+        return False, str(e)
