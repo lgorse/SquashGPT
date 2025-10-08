@@ -16,6 +16,7 @@ from dateutil import parser
 from dotenv import load_dotenv
 
 from flask import Flask, jsonify, request
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -24,6 +25,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 app = Flask(__name__)
+
 
 
 def setup_driver(mode=None):
@@ -129,7 +131,7 @@ def book_courts():
         driver.quit()
 
 
-@app.route("/booking/delete", methods=["DELETE"])
+@app.route("/booking/delete", methods=["DELETE", "POST"])
 def delete_booking():
     data = request.get_json()
     driver = setup_driver()
