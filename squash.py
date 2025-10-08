@@ -97,7 +97,8 @@ def reservations():
         for day in days:
             navigate_to_calendar(day, driver)
             daily_booking = court.my_reservations(day, full_name, driver)[0]
-            bookings.append(daily_booking)
+            if (daily_booking):
+                bookings.append(daily_booking)
         bookings_dict = [booking.to_dict() for booking in bookings]
         response = json.dumps(bookings_dict)
         print(response)
@@ -128,6 +129,34 @@ def book_courts():
         driver.quit()
 
 
+@app.route("/delete", methods=["DELETE"])
+def delete_booking():
+    data = request.get_json()
+    driver = setup_driver()
+    if not data:
+        return jsonify({"status": "error", "message": "No bookings provided"}), 400
+    try:
+        date = parser.parse(data["date"]).strftime("%Y-%m-%d")
+        if date:
+            load_dotenv()
+            full_name=os.getenv('full_name')
+            login.login_to_clublocker(driver)
+            navigate_to_calendar(date, driver)
+            booking = court.delete_booking(date, full_name, driver)
+            if booking:
+                print(f"Booking status:{booking.status} of booking on {booking.date} at {booking.time} for court {booking.court}")
+                response = json.dumps(booking.to_dict())
+                return jsonify(response), 200
+            else: 
+                return jsonify({"status": "error", "message": "slot not found"}), 500
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        driver.quit()
+    
+    
+
+
 def main():
     parser = argparse.ArgumentParser(description="Court Booking System")
     parser.add_argument(
@@ -145,7 +174,7 @@ def main():
     else:
         driver = setup_driver(args.mode)
         try: 
-            date = "2025-10-07"
+            date = "2025-10-08"
             load_dotenv()
             full_name=os.getenv('full_name')
             login.login_to_clublocker(driver)
@@ -157,6 +186,7 @@ def main():
                 print(f"Error: no slot found")
         except Exception as e:
             print(f"{e}")
+        input("Press any key")
         
        
             

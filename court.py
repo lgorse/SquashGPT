@@ -70,7 +70,7 @@ class BookingListener:
             "back-to-back",
             "does not allow",
             "cannot enter a score",
-            "less than"
+            "4 hours before it is scheduled"
         ]
 
         try:
@@ -272,9 +272,8 @@ def delete_booking(date, name, driver):
     wait = WebDriverWait(driver, 5)
     if slot:
         status, message = delete_slot(driver, slot)
-        if status:
-            booking.status = message
-            return booking
+        booking.status = message
+        return booking
     else:
         return None
         
