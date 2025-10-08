@@ -129,7 +129,7 @@ def book_courts():
         driver.quit()
 
 
-@app.route("/delete", methods=["DELETE"])
+@app.route("/booking/delete", methods=["DELETE"])
 def delete_booking():
     data = request.get_json()
     driver = setup_driver()

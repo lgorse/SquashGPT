@@ -317,3 +317,5 @@ def delete_slot(driver, slot):
     except Exception as e:
         print(f"Error with delete element: {e}")
         return False, str(e)
+    
+
