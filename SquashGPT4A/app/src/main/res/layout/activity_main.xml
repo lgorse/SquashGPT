@@ -44,7 +44,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Type your message..."
+            android:hint="Ask SquashGPT"
             android:padding="12dp"
             android:background="@android:color/transparent"
             android:maxLines="4"

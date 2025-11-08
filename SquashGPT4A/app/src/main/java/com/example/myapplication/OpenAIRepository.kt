@@ -16,6 +16,7 @@ import com.aallam.openai.api.thread.ThreadRequest
 import com.aallam.openai.client.OpenAI
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
+import java.time.LocalDate
 
 @OptIn(BetaOpenAI::class)
 class OpenAIRepository(private val openAI: OpenAI) {
@@ -23,6 +24,8 @@ class OpenAIRepository(private val openAI: OpenAI) {
     private var currentThreadId: ThreadId? = null
     private val assistantId = AssistantId("asst_aA9PbdNVLRxjGwm6Ge6DGaKr")
     private val bookingAPI = BookingAPIService()
+    private val today = LocalDate.now().toString()
+
 
     suspend fun sendMessage(userMessage: String): String {
         return try {
@@ -51,7 +54,9 @@ class OpenAIRepository(private val openAI: OpenAI) {
             // Run the assistant
             var run = openAI.createRun(
                 threadId = currentThreadId!!,
-                request = RunRequest(assistantId = assistantId)
+                request = RunRequest(
+                    assistantId = assistantId,
+                    instructions = "Today is $today")
             )
 
             // Poll until completion or action required
