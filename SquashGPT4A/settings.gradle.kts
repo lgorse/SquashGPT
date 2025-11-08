@@ -1,12 +1,8 @@
+// settings.gradle.kts
+
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -18,7 +14,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
-rootProject.name = "My Application"
-include(":app")
- 
+rootProject.name = "SquashGPT4A"
+include(":app") // Or your module name

@@ -1,4 +1,7 @@
-package com.example.myapplication
+package com.example.squashgpt4a
 
-class Message {
-}
+data class Message(
+    val text: String,
+    val isUser: Boolean,
+    val timestamp: Long = System.currentTimeMillis()
+)
