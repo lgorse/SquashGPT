@@ -1,0 +1,27 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color purple_200
+color purple_500
+color purple_700
+color teal_200
+color teal_700
+color white
+drawable bg_message_assistant
+drawable bg_message_user
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+id inputContainer
+id loadingIndicator
+id messageInput
+id messageText
+id recyclerView
+id sendButton
+layout activity_main
+layout item_message_assistant
+layout item_message_user
+mipmap ic_launcher
+string app_name
+style Theme.MyApplication
+xml backup_rules
+xml data_extraction_rules
