@@ -61,7 +61,7 @@ class OpenAIRepository(private val openAI: OpenAI) {
                 threadId = currentThreadId!!,
                 request = RunRequest(
                     assistantId = assistantId,
-                    instructions = "Today is $today")
+                    instructions = "Today is $today. You always specify weekdays when mentioning bookings.")
             )
 
             // Poll until completion or action required
