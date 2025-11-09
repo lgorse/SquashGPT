@@ -27,7 +27,6 @@ class ChatViewModel : ViewModel() {
     val messages: StateFlow<List<Message>> = _messages
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
 
 
     fun sendMessage(text: String) {

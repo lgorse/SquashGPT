@@ -2,6 +2,7 @@ package com.example.squashgpt4a
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var messageInput: EditText
     private lateinit var sendButton: ImageButton
-    private lateinit var loadingIndicator: ProgressBar
+    private lateinit var findBookingsButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +33,9 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         messageInput = findViewById(R.id.messageInput)
         sendButton = findViewById(R.id.sendButton)
-        loadingIndicator = findViewById(R.id.loadingIndicator)
+        findBookingsButton = findViewById(R.id.findBookingsButton)
+
+
 
         // Setup RecyclerView
         adapter = MessageAdapter(mutableListOf())
@@ -50,16 +53,19 @@ class MainActivity : AppCompatActivity() {
                 if (adapter.itemCount > 0) {
                     recyclerView.scrollToPosition(adapter.itemCount - 1)
                 }
+
+                // Hide button once messages start appearing
+                if (messages.isNotEmpty()) {
+                    findBookingsButton.visibility = View.GONE
+                }
             }
         }
 
-       /* // Observe loading state
-        lifecycleScope.launch {
-            viewModel.isLoading.collect { isLoading ->
-                loadingIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
-                sendButton.isEnabled = !isLoading
-            }
-        }*/
+        // Find bookings button click
+        findBookingsButton.setOnClickListener {
+            viewModel.sendMessage(findBookingsButton.text as String)
+            findBookingsButton.visibility = View.GONE
+        }
 
         // Send button click
         sendButton.setOnClickListener {
