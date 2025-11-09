@@ -53,13 +53,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Observe loading state
+       /* // Observe loading state
         lifecycleScope.launch {
             viewModel.isLoading.collect { isLoading ->
                 loadingIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
                 sendButton.isEnabled = !isLoading
             }
-        }
+        }*/
 
         // Send button click
         sendButton.setOnClickListener {

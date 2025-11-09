@@ -1,5 +1,7 @@
 package com.example.squashgpt4a
 
+import android.graphics.Color
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +18,26 @@ class MessageAdapter(val messages: MutableList<Message>) :
 
     class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val messageText: TextView = view.findViewById(R.id.messageText)
+
+        fun bind(message: Message) {
+            if (message.isLoading) {
+                // Display loading indicator
+                messageText.text = when (message.loadingType) {
+                    LoadingType.SQUASHGPT -> "🤔 SquashGPT thinking..."
+                    LoadingType.API -> "⚡ API processing..."
+                    else -> "Loading..."
+                }
+                messageText.setTextColor(Color.GRAY)
+                messageText.setTypeface(null, Typeface.ITALIC)
+            } else {
+                // Display normal message
+                messageText.text = message.text
+                messageText.setTextColor(if (message.isUser) Color.WHITE else Color.BLACK)
+                messageText.setTypeface(null, Typeface.NORMAL)
+            }
+
+            // Your existing bubble styling
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -33,7 +55,7 @@ class MessageAdapter(val messages: MutableList<Message>) :
     }
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-        holder.messageText.text = messages[position].text
+        holder.bind(messages[position])
     }
 
     override fun getItemCount() = messages.size

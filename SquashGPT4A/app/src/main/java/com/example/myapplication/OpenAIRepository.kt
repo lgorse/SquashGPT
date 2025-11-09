@@ -26,9 +26,14 @@ class OpenAIRepository(private val openAI: OpenAI) {
     private val bookingAPI = BookingAPIService()
     private val today = LocalDate.now().toString()
 
+    var onLoadingStateChanged: ((LoadingType?) -> Unit)? = null
+
 
     suspend fun sendMessage(userMessage: String): String {
         return try {
+            // Signal SquashGPT processing started
+            onLoadingStateChanged?.invoke(LoadingType.SQUASHGPT)
+
             // Create thread if needed
             if (currentThreadId == null) {
                 val thread = openAI.thread(request = ThreadRequest())
@@ -66,6 +71,10 @@ class OpenAIRepository(private val openAI: OpenAI) {
 
                 // Handle function calls
                 if (run.status == Status.RequiresAction && run.requiredAction != null) {
+
+                    // Signal API processing when tool calls are detected
+                    onLoadingStateChanged?.invoke(LoadingType.API)
+
                     // Get run steps to access tool calls
                     val steps = openAI.runSteps(threadId = currentThreadId!!, runId = run.id)
                     val toolOutputs = mutableListOf<ToolOutput>()
@@ -95,7 +104,12 @@ class OpenAIRepository(private val openAI: OpenAI) {
                         }
                     }
 
+
                     if (toolOutputs.isNotEmpty()) {
+
+                        // Back to SquashGPT processing after API calls complete
+                        onLoadingStateChanged?.invoke(LoadingType.SQUASHGPT)
+
                         // Submit tool outputs
                         openAI.submitToolOutput(
                             threadId = currentThreadId!!,
@@ -108,6 +122,9 @@ class OpenAIRepository(private val openAI: OpenAI) {
                 delay(1000)
                 run = openAI.getRun(threadId = currentThreadId!!, runId = run.id)
             }
+
+            // Clear loading state
+            onLoadingStateChanged?.invoke(null)
 
             if (run.status != Status.Completed) {
                 return "Error: Run status is ${run.status}"
