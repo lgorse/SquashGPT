@@ -9,14 +9,17 @@ import com.aallam.openai.api.core.Role
 import com.aallam.openai.api.core.Status
 import com.aallam.openai.api.message.MessageContent
 import com.aallam.openai.api.message.MessageRequest
+import com.aallam.openai.api.run.RunId
 import com.aallam.openai.api.run.RunRequest
 import com.aallam.openai.api.run.ToolOutput
 import com.aallam.openai.api.thread.ThreadId
 import com.aallam.openai.api.thread.ThreadRequest
 import com.aallam.openai.client.OpenAI
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 import kotlinx.serialization.json.*
 import java.time.LocalDate
+import kotlin.coroutines.cancellation.CancellationException
 
 @OptIn(BetaOpenAI::class)
 class OpenAIRepository(private val openAI: OpenAI) {
@@ -25,6 +28,8 @@ class OpenAIRepository(private val openAI: OpenAI) {
     private val assistantId = AssistantId("asst_aA9PbdNVLRxjGwm6Ge6DGaKr")
     private val bookingAPI = BookingAPIService()
     private val today = LocalDate.now().toString()
+
+    private var cancellationHandler: (suspend () -> Unit)? = null
 
     var onLoadingStateChanged: ((LoadingType?) -> Unit)? = null
 
@@ -38,6 +43,9 @@ class OpenAIRepository(private val openAI: OpenAI) {
             if (currentThreadId == null) {
                 val thread = openAI.thread(request = ThreadRequest())
                 currentThreadId = thread.id
+
+                // Check if cancelled
+                yield()
 
                 openAI.message(
                     threadId = currentThreadId!!,
@@ -56,6 +64,8 @@ class OpenAIRepository(private val openAI: OpenAI) {
                 )
             }
 
+            yield()
+
             // Run the assistant
             var run = openAI.createRun(
                 threadId = currentThreadId!!,
@@ -64,10 +74,27 @@ class OpenAIRepository(private val openAI: OpenAI) {
                     instructions = "Today is $today. You always specify weekdays when mentioning bookings.")
             )
 
+            // Set up cancellation handler for this run
+            val threadId = currentThreadId!!
+            val runId = run.id
+            cancellationHandler = {
+                try {
+                    openAI.cancel(threadId = threadId, runId = runId)
+                } catch (e: Exception) {
+                    // Ignore errors
+                }
+            }
+
+            // Check if cancelled right after setting handler
+            yield()
+
             // Poll until completion or action required
             while (run.status == Status.Queued ||
                 run.status == Status.InProgress ||
                 run.status == Status.RequiresAction) {
+
+                // Check if cancelled
+                yield()
 
                 // Handle function calls
                 if (run.status == Status.RequiresAction && run.requiredAction != null) {
@@ -78,6 +105,9 @@ class OpenAIRepository(private val openAI: OpenAI) {
                     // Get run steps to access tool calls
                     val steps = openAI.runSteps(threadId = currentThreadId!!, runId = run.id)
                     val toolOutputs = mutableListOf<ToolOutput>()
+
+                    // Check if cancelled before each API call
+                    yield()
 
                     for (step in steps) {
                         val stepDetails = step.stepDetails
@@ -104,7 +134,6 @@ class OpenAIRepository(private val openAI: OpenAI) {
                         }
                     }
 
-
                     if (toolOutputs.isNotEmpty()) {
 
                         // Back to SquashGPT processing after API calls complete
@@ -122,6 +151,8 @@ class OpenAIRepository(private val openAI: OpenAI) {
                 delay(1000)
                 run = openAI.getRun(threadId = currentThreadId!!, runId = run.id)
             }
+
+            cancellationHandler = null
 
             // Clear loading state
             onLoadingStateChanged?.invoke(null)
@@ -142,8 +173,14 @@ class OpenAIRepository(private val openAI: OpenAI) {
             }
 
             return "No response received"
-
+        } catch (e: CancellationException) {
+            cancellationHandler?.invoke()
+            cancellationHandler = null
+            onLoadingStateChanged?.invoke(null)
+            throw e // Re-throw to propagate cancellation
         } catch (e: Exception) {
+            cancellationHandler = null
+            onLoadingStateChanged?.invoke(null)
             "Error: ${e.message}"
         }
     }
@@ -185,6 +222,14 @@ class OpenAIRepository(private val openAI: OpenAI) {
             """{"error": "Function execution failed: ${e.message}"}"""
         }
     }
+
+    suspend fun cancelCurrentRun() {
+        cancellationHandler?.invoke()
+        cancellationHandler = null
+        onLoadingStateChanged?.invoke(null)
+    }
+
+
 
     fun clearThread() {
         currentThreadId = null
