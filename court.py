@@ -10,6 +10,7 @@ import squash
 from dateutil import parser
 from dotenv import load_dotenv
 import re
+import login
 
 from flask import Flask, jsonify, request
 from selenium import webdriver
@@ -238,9 +239,28 @@ def book_slots(bookings, driver):
     return bookings
 
 
-    
+def my_reservations():
+    driver = squash.setup_driver()
+    try:
+        load_dotenv()
+        full_name=os.getenv('full_name')
+        days = squash.booking_window()
+        bookings = []
+        login.login_to_clublocker(driver)
+        for day in days:
+            squash.navigate_to_calendar(day, driver)
+            daily_booking = day_reservation(day, full_name, driver)[0]
+            if (daily_booking):
+                bookings.append(daily_booking)
+        bookings_dict = [booking.to_dict() for booking in bookings]
+        return bookings_dict
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        driver.quit() 
 
-def my_reservations(date, name, driver):
+
+def day_reservation(date, name, driver):
     try:
         columns = WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.slots"))
@@ -268,7 +288,7 @@ def my_reservations(date, name, driver):
     
 
 def delete_booking(date, name, driver):
-    booking, slot = my_reservations(date, name, driver)
+    booking, slot = day_reservation(date, name, driver)
     wait = WebDriverWait(driver, 5)
     if slot:
         status, message = delete_slot(driver, slot)

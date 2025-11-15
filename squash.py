@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, date
 # Custom classes
 import court
 import login
+import gpt
 
 import parsedatetime
 from dateutil import parser
@@ -89,26 +90,14 @@ def navigate_to_matches(driver):
         
 @app.route("/reservations", methods=["GET"])
 def reservations():
-    driver = setup_driver()
     try:
-        load_dotenv()
-        full_name=os.getenv('full_name')
-        days = booking_window()
-        bookings = []
-        login.login_to_clublocker(driver)
-        for day in days:
-            navigate_to_calendar(day, driver)
-            daily_booking = court.my_reservations(day, full_name, driver)[0]
-            if (daily_booking):
-                bookings.append(daily_booking)
-        bookings_dict = [booking.to_dict() for booking in bookings]
-        response = json.dumps(bookings_dict)
+        bookings = court.my_reservations()
+        response = json.dumps(bookings.dict)
         print(response)
         return jsonify(response), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-    finally:
-        driver.quit()  
+   
 
 @app.route("/book-courts", methods=["GET", "POST"])
 def book_courts():
@@ -156,7 +145,15 @@ def delete_booking():
     finally:
         driver.quit()
     
-    
+
+@app.route("/chat", methods=["POST"])
+def chat():
+   data = request.get_json()
+   return gpt.stream(request)
+
+@app.route('/clear', methods=['POST'])
+def clear():
+    return gpt.clear_chat(request)
 
 
 def main():
