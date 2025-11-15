@@ -2,16 +2,19 @@ from openai import OpenAI
 from flask import Flask, Response, request, jsonify, stream_with_context
 import json
 import time
+import os
 import squash
 import court
+from dotenv import load_dotenv
 
-client = OpenAI(api_key="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")
+load_dotenv()
+client = OpenAI(api_key=os.getenv('openai_api_key'))
 
 # Store conversation history per user
 user_conversations = {}
 
 # Your prompt ID from OpenAI dashboard
-PROMPT_ID = "pmpt_6909acbc497c8195b8b7a10c35d163160154a643cd7833f5"
+PROMPT_ID = os.getenv("openai_prompt_id")
 
 AVAILABLE_TOOLS=["get_bookings", "delete_booking", "book_court"]
 
