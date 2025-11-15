@@ -45,10 +45,6 @@ def stream(request):
             for event in stream:
                 if not hasattr(event, 'type'):
                     continue
-
-                # Debug: log all event types
-                print(f"DEBUG - Event type: {event.type}")
-
                 if event.type == "response.output_text.delta":
                     text_delta = event.delta if hasattr(event, 'delta') else ""
                     full_response += text_delta
@@ -76,11 +72,10 @@ def stream(request):
                 elif event.type == "response.completed":
                     if hasattr(event, 'response'):
                         response_id = event.response.id
-                        print(f"DEBUG - Got response_id from response.completed: {response_id}")
                     else:
                         print("DEBUG - response.completed event but no response attribute")
 
-            print(f"DEBUG - After stream loop, response_id: {response_id}, tool_calls: {len(tool_calls)}")
+           ## print(f"DEBUG - After stream loop, response_id: {response_id}, tool_calls: {len(tool_calls)}")
 
             if tool_calls:
                 yield f"data: {json.dumps({'status': 'executing_tools'})}\n\n"
@@ -161,10 +156,6 @@ def execute_squash(tool_calls, response_id, user_id):
     # Send tool results back to OpenAI for final response (after all tools are executed)
     yield f"data: {json.dumps({'status': 'getting_final_response'})}\n\n"
 
-    # Debug: print what we're sending
-    print(f"DEBUG - response_id: {response_id}")
-    print(f"DEBUG - tool_results: {json.dumps(tool_results, indent=2)}")
-
     # Submit tool outputs by creating a new response with the tool results
     # tool_results is already in the correct format: [{"type": "function_call_output", "call_id": "...", "output": "..."}]
     final_stream = client.responses.create(
@@ -187,7 +178,7 @@ def execute_squash(tool_calls, response_id, user_id):
             final_response += text_delta
             yield f"data: {json.dumps({'status': 'streaming', 'text': text_delta})}\n\n"
 
-        elif event.type == "response.done":
+        elif event.type == "response.completed":
             if hasattr(event, 'response'):
                 final_response_id = event.response.id
 

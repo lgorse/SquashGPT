@@ -92,7 +92,8 @@ def navigate_to_matches(driver):
 def reservations():
     try:
         bookings = court.my_reservations()
-        response = json.dumps(bookings.dict)
+        print(f"the booking {bookings}")
+        response = json.dumps(bookings)
         print(response)
         return jsonify(response), 200
     except Exception as e:
