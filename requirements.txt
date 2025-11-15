@@ -6,5 +6,6 @@ python_dateutil==2.9.0.post0
 selenium==4.35.0
 webdriver-manager==4.0.1
 requests==2.31.0
+openai>=2.7.0
 
 
