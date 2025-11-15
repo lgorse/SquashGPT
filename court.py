@@ -238,6 +238,20 @@ def book_slots(bookings, driver):
         print(f"Booking on {booking.date} at {booking.time}: {booking.status}")
     return bookings
 
+def book_courts(data):
+    driver = squash.setup_driver()
+    bookings = request_to_bookings(data)
+    try:
+        login.login_to_clublocker(driver)
+        confirmations = book_slots(bookings, driver)
+        confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
+        response = json.dumps(confirmations_dict)
+        print(response)
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        driver.quit()
 
 def my_reservations():
     driver = squash.setup_driver()

@@ -103,22 +103,8 @@ def reservations():
 @app.route("/book-courts", methods=["GET", "POST"])
 def book_courts():
     data = request.get_json()
-    driver = setup_driver()
-    print(data)
-    if not data:
-        return jsonify({"status": "error", "message": "No bookings provided"}), 400
-    bookings = court.request_to_bookings(data)
-    try:
-        login.login_to_clublocker(driver)
-        confirmations = court.book_slots(bookings, driver)
-        confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
-        response = json.dumps(confirmations_dict)
-        print(response)
-        return jsonify(response), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-    finally:
-        driver.quit()
+    return court.book_courts(data)
+   
 
 
 @app.route("/booking/delete", methods=["DELETE", "POST"])
