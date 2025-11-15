@@ -1,5 +1,6 @@
 package com.example.squashgpt4a
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -61,6 +62,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Observe processing state
+        lifecycleScope.launch {
+            viewModel.isLoading.collect { isLoading ->
+                if (isLoading) {
+                    // Show stop button
+                    sendButton.setImageResource(android.R.drawable.ic_delete)
+                    sendButton.setColorFilter(Color.GRAY)
+                    messageInput.isEnabled = false
+                } else {
+                    // Show send button
+                    sendButton.setImageResource(android.R.drawable.ic_menu_send)
+                    sendButton.clearColorFilter()
+                    messageInput.isEnabled = true
+                }
+            }
+        }
+
         // Find bookings button click
         findBookingsButton.setOnClickListener {
             viewModel.sendMessage(findBookingsButton.text as String)
@@ -69,10 +87,16 @@ class MainActivity : AppCompatActivity() {
 
         // Send button click
         sendButton.setOnClickListener {
-            val text = messageInput.text.toString()
-            if (text.isNotBlank()) {
-                viewModel.sendMessage(text)
-                messageInput.text.clear()
+            if (viewModel.isLoading.value) {
+                // Stop processing
+                viewModel.stopProcessing()
+            } else {
+                // Send message
+                val text = messageInput.text.toString()
+                if (text.isNotBlank()) {
+                    viewModel.sendMessage(text)
+                    messageInput.text.clear()
+                }
             }
         }
     }
