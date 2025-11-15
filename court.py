@@ -210,10 +210,10 @@ def book_prime_time(modal, driver):
 
 def request_to_bookings(booking_json):
     booking_request = booking_json["bookings"]
-    print(booking_request)
+    print(f"the booking request{booking_request}")
     bookings = []
     for request in booking_request:
-        booking = Booking(request["date"], request["time"], request["status"])
+        booking = Booking(request.get("date"), request.get("time"), request.get("status"))
         bookings.append(booking)
         print(request)
         print(booking.status)
@@ -240,16 +240,18 @@ def book_slots(bookings, driver):
 
 def book_courts(data):
     driver = squash.setup_driver()
+    print(f"booking{data}")
     bookings = request_to_bookings(data)
+    print(f"the data {bookings}")
     try:
         login.login_to_clublocker(driver)
         confirmations = book_slots(bookings, driver)
         confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
         response = json.dumps(confirmations_dict)
         print(response)
-        return jsonify(response), 200
+        return response, 200
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return ({"status": "error", "message": str(e)}), 500
     finally:
         driver.quit()
 

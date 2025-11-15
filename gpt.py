@@ -123,6 +123,11 @@ def execute_squash(tool_calls, response_id, user_id):
                 result = None
                 if tool_name == "get_bookings":
                     result = court.my_reservations()
+                elif tool_name == "book_court":
+                    print(f"tool arguments{tool_args}")
+                    result = court.book_courts(tool_args)
+                elif tool_name == "delete_booking":
+                    result = court.delete_booking(tool_args)
                  
                 tool_results.append({
                     "type": "function_call_output",

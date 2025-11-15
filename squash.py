@@ -103,7 +103,8 @@ def reservations():
 @app.route("/book-courts", methods=["GET", "POST"])
 def book_courts():
     data = request.get_json()
-    return court.book_courts(data)
+    response, status = court.book_courts(data)
+    return jsonify(response), status
    
 
 
