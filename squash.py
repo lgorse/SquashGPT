@@ -111,27 +111,9 @@ def book_courts():
 @app.route("/booking/delete", methods=["DELETE", "POST"])
 def delete_booking():
     data = request.get_json()
-    driver = setup_driver()
-    if not data:
-        return jsonify({"status": "error", "message": "No bookings provided"}), 400
-    try:
-        date = parser.parse(data["date"]).strftime("%Y-%m-%d")
-        if date:
-            load_dotenv()
-            full_name=os.getenv('full_name')
-            login.login_to_clublocker(driver)
-            navigate_to_calendar(date, driver)
-            booking = court.delete_booking(date, full_name, driver)
-            if booking:
-                print(f"Booking status:{booking.status} of booking on {booking.date} at {booking.time} for court {booking.court}")
-                response = json.dumps(booking.to_dict())
-                return jsonify(response), 200
-            else: 
-                return jsonify({"status": "error", "message": "slot not found"}), 500
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-    finally:
-        driver.quit()
+    response, status = court.delete_booking(data)
+    return jsonify(response), status
+   
     
 
 @app.route("/chat", methods=["POST"])

@@ -301,17 +301,31 @@ def day_reservation(date, name, driver):
     except Exception as e:
         print(f"Error:{e}")
 
-    
 
-def delete_booking(date, name, driver):
-    booking, slot = day_reservation(date, name, driver)
-    wait = WebDriverWait(driver, 5)
-    if slot:
-        status, message = delete_slot(driver, slot)
-        booking.status = message
-        return booking
-    else:
-        return None
+def delete_booking(data):
+    date = parser.parse(data.get("date")).strftime("%Y-%m-%d")
+    if date:
+        try:
+            driver = squash.setup_driver()
+            load_dotenv()
+            full_name=os.getenv('full_name')
+            login.login_to_clublocker(driver)
+            squash.navigate_to_calendar(date, driver)
+            booking, slot = day_reservation(date, full_name, driver)
+            wait = WebDriverWait(driver, 5)
+            if slot:
+                status, message = delete_slot(driver, slot)
+                booking.status = message
+            if booking:
+                print(f"Booking status:{booking.status} of booking on {booking.date} at {booking.time} for court {booking.court}")
+                response = json.dumps(booking.to_dict())
+                return response, 200
+            else: 
+                return ({"status": "error", "message": "slot not found"}), 500
+        except Exception as e:
+            return ({"status": "error", "message": str(e)}), 500
+        finally:
+            driver.quit()
         
 
 
