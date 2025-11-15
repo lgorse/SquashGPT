@@ -10,7 +10,7 @@
         android:label="SquashGPT"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.Light"
+        android:theme="@style/Theme.SquashGPT"
         android:usesCleartextTraffic="false"
         tools:targetApi="31">
 

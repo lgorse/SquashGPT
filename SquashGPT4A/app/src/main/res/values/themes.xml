@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.MyApplication" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.SquashGPT" parent="Theme.AppCompat.DayNight">
+        <item name="colorPrimary">@android:color/darker_gray</item>
+        <item name="colorPrimaryVariant">@android:color/background_light</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+    </style>
 </resources>
