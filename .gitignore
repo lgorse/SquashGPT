@@ -10,3 +10,4 @@ evidence/.venv
 .venv/
 __pycache__/
 *.pyc
+android-spec.md

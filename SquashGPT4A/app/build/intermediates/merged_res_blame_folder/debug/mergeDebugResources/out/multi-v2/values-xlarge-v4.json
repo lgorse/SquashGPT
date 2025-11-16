@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.squashgpt4a.app-mergeDebugResources-33:/values-xlarge-v4/values-xlarge-v4.xml",
+            "outputFile": "com.example.squashgpt.app-mergeDebugResources-36:/values-xlarge-v4/values-xlarge-v4.xml",
             "map": [
                 {
-                    "source": "/Users/lgorse/.gradle/caches/8.13/transforms/6468fd75492fb3ad0d0d6e6f205fc116/transformed/appcompat-1.6.1/res/values-xlarge-v4/values-xlarge-v4.xml",
+                    "source": "/Users/lgorse/.gradle/caches/8.13/transforms/7a918eead9edbd1fb7366c4a137ce4d9/transformed/appcompat-1.6.1/res/values-xlarge-v4/values-xlarge-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7",
                         "startColumns": "4,4,4,4,4,4",

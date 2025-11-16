@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <color name="openai_green">#10A37F</color>
+    <color name="openai_green_dark">#0D8A6A</color>
     <color name="white">#FFFFFFFF</color>
-    <string name="app_name">My Application</string>
-    <style name="Theme.MyApplication" parent="android:Theme.Material.Light.NoActionBar"/>
+    <string name="action_clear">Clear</string>
+    <string name="app_name">SquashGPT</string>
+    <string name="empty_state_subtitle">Book a squash court in natural language</string>
+    <string name="empty_state_title">Welcome to SquashGPT</string>
+    <string name="hint_message">Book a court...</string>
+    <string name="status_processing">Processing request...</string>
+    <string name="status_responding">Assistant is responding...</string>
+    <string name="status_thinking">Assistant is thinking...</string>
+    <style name="Theme.SquashGPT" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/openai_green</item>
+        <item name="colorPrimaryVariant">@color/openai_green_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>

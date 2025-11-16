@@ -4,15 +4,19 @@ plugins {
 }
 
 android {
-    namespace = "com.example.squashgpt4a"
+    namespace = "com.example.squashgpt"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.squashgpt4a"
-        minSdk = 26
+        applicationId = "com.example.squashgpt"
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_BASE_URL", "\"https://squashgpt.up.railway.app/\"")
     }
 
     buildTypes {
@@ -31,37 +35,43 @@ android {
     }
 
     kotlinOptions {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs += listOf(
-                "-opt-in=kotlin.RequiresOptIn"
-            )
-        }
+        jvmTarget = "1.8"
+    }
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
     }
 }
 
 dependencies {
+    // AndroidX Core
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-
-    // OpenAI Kotlin SDK
-    implementation("com.aallam.openai:openai-client:3.8.2")  // ← Changed from 3.6.3
-    implementation("io.ktor:ktor-client-android:2.3.7")
-
     // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
-    // Ktor for HTTP calls
-    implementation("io.ktor:ktor-client-android:2.3.7")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    // ViewModel and LiveData
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.activity:activity-ktx:1.8.2")
 
-    // Kotlinx Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    // Networking
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }

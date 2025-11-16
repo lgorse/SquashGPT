@@ -1,19 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="4dp">
+    android:orientation="vertical"
+    android:gravity="end"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
 
-    <TextView
-        android:id="@+id/messageText"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:maxWidth="280dp"
-        android:padding="12dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/white"
-        android:background="@drawable/bg_message_user" />
+        android:layout_marginStart="60dp"
+        app:cardBackgroundColor="#10A37F"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp">
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/textMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:maxWidth="260dp" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/textTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:textColor="#999999"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="4dp" />
+
+</LinearLayout>

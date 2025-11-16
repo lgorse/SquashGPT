@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.SquashGPT" parent="Theme.AppCompat.DayNight">
-        <item name="colorPrimary">@android:color/darker_gray</item>
-        <item name="colorPrimaryVariant">@android:color/background_light</item>
-        <item name="colorOnPrimary">@android:color/white</item>
+    <style name="Theme.SquashGPT" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/openai_green</item>
+        <item name="colorPrimaryVariant">@color/openai_green_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

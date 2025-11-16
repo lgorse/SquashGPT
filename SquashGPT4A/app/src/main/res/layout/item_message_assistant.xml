@@ -1,19 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="4dp">
+    android:orientation="vertical"
+    android:gravity="start"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
 
-    <TextView
-        android:id="@+id/messageText"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:maxWidth="280dp"
-        android:padding="12dp"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        android:background="@drawable/bg_message_assistant" />
+        android:layout_marginEnd="60dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/textMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:maxWidth="260dp" />
+
+            <View
+                android:id="@+id/streamingCursor"
+                android:layout_width="2dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="2dp"
+                android:layout_gravity="center_vertical"
+                android:background="@android:color/black"
+                android:visibility="gone" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/textTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:textColor="#999999"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="4dp" />
+
+</LinearLayout>
