@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import com.example.squashgpt.data.api.RetrofitClient
 import com.example.squashgpt.data.api.SquashAPI
 import com.example.squashgpt.databinding.ActivityMainBinding
@@ -64,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         adapter = ChatAdapter()
         binding.recyclerViewMessages.apply {
             layoutManager = LinearLayoutManager(this@MainActivity).apply {
-                stackFromEnd = true
+                stackFromEnd = false
             }
             adapter = this@MainActivity.adapter
         }
@@ -73,11 +74,13 @@ class MainActivity : AppCompatActivity() {
     private fun setupObservers() {
         viewModel.messages.observe(this) { messages ->
             adapter.submitList(messages) {
-                // After submitList completes, scroll to top if flag is set
-                if (shouldScrollToTop && messages.isNotEmpty()) {
-                    val layoutManager = binding.recyclerViewMessages.layoutManager as? LinearLayoutManager
-                    layoutManager?.scrollToPositionWithOffset(messages.size - 1, 0)
+                // Scroll user message to top after they send it
+                if (shouldScrollToTop && messages.isNotEmpty() && messages.last().isUser) {
                     shouldScrollToTop = false
+                    val position = messages.size - 1
+                    binding.recyclerViewMessages.post {
+                        smoothScrollToTop(position)
+                    }
                 }
             }
 
@@ -142,6 +145,20 @@ class MainActivity : AppCompatActivity() {
                 binding.editTextMessage.text?.clear()
             }
         }
+    }
+
+    private fun smoothScrollToTop(position: Int) {
+        val layoutManager = binding.recyclerViewMessages.layoutManager as LinearLayoutManager
+        val smoothScroller = object : LinearSmoothScroller(this) {
+            override fun getVerticalSnapPreference(): Int = SNAP_TO_START
+
+            override fun calculateSpeedPerPixel(displayMetrics: android.util.DisplayMetrics): Float {
+                // Faster scroll: smaller value = faster (default is ~25ms per dp)
+                return 25f / displayMetrics.densityDpi
+            }
+        }
+        smoothScroller.targetPosition = position
+        layoutManager.startSmoothScroll(smoothScroller)
     }
 
     class ChatViewModelFactory(
