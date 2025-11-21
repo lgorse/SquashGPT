@@ -1411,6 +1411,7 @@ color dim_foreground_disabled_material_dark
 color dim_foreground_disabled_material_light
 color dim_foreground_material_dark
 color dim_foreground_material_light
+color eggshell_white
 color error_color_material_dark
 color error_color_material_light
 color foreground_material_dark
@@ -1849,6 +1850,7 @@ color m3_timepicker_secondary_text_button_ripple_color
 color m3_timepicker_secondary_text_button_text_color
 color m3_timepicker_time_input_stroke_color
 color m3_tonal_button_ripple_color_selector
+color main_background
 color material_blue_grey_800
 color material_blue_grey_900
 color material_blue_grey_950
@@ -2985,6 +2987,7 @@ drawable design_ic_visibility
 drawable design_ic_visibility_off
 drawable design_password_eye
 drawable design_snackbar_background
+drawable edittext_background
 drawable ic_arrow_back_black_24
 drawable ic_call_answer
 drawable ic_call_answer_low

@@ -4,7 +4,7 @@
     <string name="hint_message">Book a court...</string>
     <string name="action_clear">Clear</string>
     <string name="empty_state_title">Welcome to SquashGPT</string>
-    <string name="empty_state_subtitle">Book a squash court in natural language</string>
+    <string name="empty_state_subtitle">Your friendly squash booking assistant</string>
     <string name="status_processing">Processing request...</string>
     <string name="status_thinking">Assistant is thinking...</string>
     <string name="status_responding">Assistant is responding...</string>

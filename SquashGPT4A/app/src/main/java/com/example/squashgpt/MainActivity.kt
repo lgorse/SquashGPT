@@ -105,21 +105,21 @@ class MainActivity : AppCompatActivity() {
                 is LoadingState.ApiProcessing -> {
                     binding.statusBar.visibility = View.VISIBLE
                     binding.statusText.text = getString(R.string.status_processing)
-                    binding.statusBar.setBackgroundColor(ContextCompat.getColor(this, R.color.openai_green))
+                   // binding.statusBar.setBackgroundColor(ContextCompat.getColor(this, R.color.openai_green))
                     binding.editTextMessage.isEnabled = false
                     binding.buttonSend.isEnabled = false
                 }
                 is LoadingState.CallingOpenAI -> {
                     binding.statusBar.visibility = View.VISIBLE
                     binding.statusText.text = getString(R.string.status_thinking)
-                    binding.statusBar.setBackgroundColor(ContextCompat.getColor(this, R.color.openai_green))
+                //    binding.statusBar.setBackgroundColor(ContextCompat.getColor(this, R.color.openai_green))
                     binding.editTextMessage.isEnabled = false
                     binding.buttonSend.isEnabled = false
                 }
                 is LoadingState.StreamingResponse -> {
                     binding.statusBar.visibility = View.VISIBLE
                     binding.statusText.text = getString(R.string.status_responding)
-                    binding.statusBar.setBackgroundColor(ContextCompat.getColor(this, R.color.openai_green))
+                //    binding.statusBar.setBackgroundColor(ContextCompat.getColor(this, R.color.openai_green))
                     binding.editTextMessage.isEnabled = false
                     binding.buttonSend.isEnabled = false
                 }

@@ -16,16 +16,20 @@
         "source": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-main-40:/drawable/ic_launcher_foreground.xml"
     },
     {
+        "merged": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-debug-38:/drawable_edittext_background.xml.flat",
+        "source": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-main-40:/drawable/edittext_background.xml"
+    },
+    {
         "merged": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-debug-38:/layout_activity_main.xml.flat",
         "source": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-main-40:/layout/activity_main.xml"
     },
     {
-        "merged": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-debug-38:/mipmap_ic_launcher.png.flat",
-        "source": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-main-40:/mipmap/ic_launcher.png"
-    },
-    {
         "merged": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-debug-38:/drawable_ic_launcher_background.xml.flat",
         "source": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-main-40:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-debug-38:/mipmap_ic_launcher.png.flat",
+        "source": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-main-40:/mipmap/ic_launcher.png"
     },
     {
         "merged": "/Users/lgorse/.gradle/daemon/8.13/com.example.squashgpt.app-debug-38:/xml_backup_rules.xml.flat",

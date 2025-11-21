@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="openai_green">#10A37F</color>
-    <color name="openai_green_dark">#0D8A6A</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="eggshell_white">#F0EAD6</color>
+    <color name="main_background">#1A1919</color>
+    <color name="openai_green">#77909B</color>
+    <color name="openai_green_dark">#4B5563</color>
+    <color name="white">#FFFFFF</color>
     <string name="action_clear">Clear</string>
     <string name="app_name">SquashGPT</string>
-    <string name="empty_state_subtitle">Book a squash court in natural language</string>
+    <string name="empty_state_subtitle">Your friendly squash booking assistant</string>
     <string name="empty_state_title">Welcome to SquashGPT</string>
     <string name="hint_message">Book a court...</string>
     <string name="status_processing">Processing request...</string>

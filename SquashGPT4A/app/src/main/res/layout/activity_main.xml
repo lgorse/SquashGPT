@@ -5,14 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F7F8"
+    android:background="@color/main_background"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#10A37F"
+        android:background="@color/black"
         android:elevation="4dp"
         app:titleTextColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
@@ -79,7 +79,7 @@
         android:gravity="center_vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:background="@android:color/white"
+        android:background="@color/main_background"
         android:elevation="4dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/inputLayout"
@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textSize="12sp"
-            android:textColor="#666666"
+            android:textColor="@android:color/darker_gray"
             android:maxLines="1"
             android:ellipsize="end"
             tools:text="Processing request..." />
@@ -109,7 +109,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="12dp"
-        android:background="@android:color/white"
+        android:background="@color/cardview_dark_background"
         android:elevation="8dp"
         android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -121,23 +121,28 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            app:boxBackgroundMode="filled"
-            app:boxBackgroundColor="#F0F0F0"
-            app:boxCornerRadiusTopStart="24dp"
-            app:boxCornerRadiusTopEnd="24dp"
-            app:boxCornerRadiusBottomStart="24dp"
-            app:boxCornerRadiusBottomEnd="24dp"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp">
+            app:boxBackgroundMode="outline"
+            app:boxBackgroundColor="@color/openai_green"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxStrokeColor="@color/white"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_message"
+                android:textColor="@android:color/white"
                 android:maxLines="4"
                 android:inputType="textMultiLine|textCapSentences"
-                android:background="@android:color/transparent" />
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -146,8 +151,8 @@
             android:layout_height="48dp"
             android:src="@android:drawable/ic_menu_send"
             app:fabCustomSize="48dp"
-            app:backgroundTint="#10A37F"
-            app:tint="@android:color/white" />
+            app:backgroundTint="@color/white"
+            app:tint="@android:color/black" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
