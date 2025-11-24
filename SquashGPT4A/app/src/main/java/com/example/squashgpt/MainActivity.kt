@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     private var shouldScrollToTop = false
 
     private val viewModel: ChatViewModel by viewModels {
-        ChatViewModelFactory(RetrofitClient.apiService, userId)
+        ChatViewModelFactory(RetrofitClient.apiService, userId, applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,12 +163,13 @@ class MainActivity : AppCompatActivity() {
 
     class ChatViewModelFactory(
         private val api: SquashAPI,
-        private val userId: String
+        private val userId: String,
+        private val context: android.content.Context
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return ChatViewModel(api, userId) as T
+                return ChatViewModel(api, userId, context) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

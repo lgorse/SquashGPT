@@ -15,7 +15,7 @@ object RetrofitClient {
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
         .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(300, TimeUnit.SECONDS)  // 10 minutes for long Selenium operations
         .writeTimeout(60, TimeUnit.SECONDS)
         .build()
 

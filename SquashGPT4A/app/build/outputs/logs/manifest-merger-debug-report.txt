@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:2:1-28:12
-INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:2:1-28:12
-INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:2:1-28:12
-INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:2:1-28:12
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:2:1-37:12
+INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:2:1-37:12
+INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:2:1-37:12
+INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:2:1-37:12
 MERGED from [androidx.databinding:viewbinding:8.13.1] /Users/lgorse/.gradle/caches/8.13/transforms/8dc5137936c3a0738403af8e25ef66b1/transformed/viewbinding-8.13.1/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.11.0] /Users/lgorse/.gradle/caches/8.13/transforms/0d6810a17da3e7cde385e9b457e35237/transformed/material-1.11.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /Users/lgorse/.gradle/caches/8.13/transforms/73353f58cab9c27222b8030bd50e28e9/transformed/constraintlayout-2.1.4/AndroidManifest.xml:2:1-11:12
@@ -67,9 +67,21 @@ uses-permission#android.permission.INTERNET
 ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:5:5-67
 	android:name
 		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:5:22-64
+uses-permission#android.permission.WAKE_LOCK
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:6:5-68
+	android:name
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:6:22-65
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:7:5-77
+	android:name
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:7:22-74
+uses-permission#android.permission.FOREGROUND_SERVICE_DATA_SYNC
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:8:5-87
+	android:name
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:8:22-84
 application
-ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:7:5-26:19
-INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:7:5-26:19
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:10:5-35:19
+INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:10:5-35:19
 MERGED from [com.google.android.material:material:1.11.0] /Users/lgorse/.gradle/caches/8.13/transforms/0d6810a17da3e7cde385e9b457e35237/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] /Users/lgorse/.gradle/caches/8.13/transforms/0d6810a17da3e7cde385e9b457e35237/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /Users/lgorse/.gradle/caches/8.13/transforms/73353f58cab9c27222b8030bd50e28e9/transformed/constraintlayout-2.1.4/AndroidManifest.xml:9:5-20
@@ -91,39 +103,49 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/lgorse/.gradle/cache
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] /Users/lgorse/.gradle/caches/8.13/transforms/89af497424e939498f302ed2eec6f2b3/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:12:9-35
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:15:9-35
 	android:label
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:10:9-34
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:13:9-34
 	android:roundIcon
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:11:9-48
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:14:9-48
 	tools:targetApi
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:15:9-29
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:18:9-29
 	android:icon
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:9:9-43
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:12:9-43
 	android:allowBackup
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:8:9-35
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:11:9-35
 	android:theme
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:13:9-47
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:16:9-47
 	android:usesCleartextTraffic
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:14:9-45
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:17:9-45
 activity#com.example.squashgpt.MainActivity
-ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:17:9-25:20
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:20:9-28:20
 	android:windowSoftInputMode
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:20:13-55
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:23:13-55
 	android:exported
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:19:13-36
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:22:13-36
 	android:name
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:18:13-41
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:21:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:21:13-24:29
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:24:13-27:29
 action#android.intent.action.MAIN
-ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:22:17-69
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:25:17-69
 	android:name
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:22:25-66
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:25:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:23:17-77
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:26:17-77
 	android:name
-		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:23:27-74
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:26:27-74
+service#com.example.squashgpt.ChatService
+ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:30:9-34:56
+	android:enabled
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:32:13-35
+	android:exported
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:33:13-37
+	android:foregroundServiceType
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:34:13-53
+	android:name
+		ADDED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml:31:13-40
 uses-sdk
 INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/lgorse/Projects/squashGPT/SquashGPT4A/app/src/main/AndroidManifest.xml

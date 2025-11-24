@@ -1,9 +1,12 @@
 package com.example.squashgpt.presentation
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.squashgpt.ChatService
 import com.example.squashgpt.data.api.ChatRequest
 import com.example.squashgpt.data.api.ClearRequest
 import com.example.squashgpt.data.api.SquashAPI
@@ -19,7 +22,8 @@ import java.io.BufferedReader
 
 class ChatViewModel(
     private val api: SquashAPI,
-    private val userId: String
+    private val userId: String,
+    private val context: Context
 ) : ViewModel() {
 
     private val _messages = MutableLiveData<List<ChatMessage>>(emptyList())
@@ -35,6 +39,9 @@ class ChatViewModel(
 
         // Add user message
         addMessage(ChatMessage(text = message, isUser = true))
+
+        // Start foreground service to keep connection alive
+        context.startService(Intent(context, ChatService::class.java))
 
         // Send to backend
         viewModelScope.launch {
@@ -58,6 +65,9 @@ class ChatViewModel(
             } catch (e: Exception) {
                 _loadingState.value = LoadingState.Error("Error: ${e.message}")
                 removeStreamingMessage()
+            } finally {
+                // Stop foreground service when done
+                context.stopService(Intent(context, ChatService::class.java))
             }
         }
     }
