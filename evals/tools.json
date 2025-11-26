@@ -1,0 +1,78 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "get_bookings",
+      "description": "Get all current bookings. Returns list with date, time, court number, and status.",
+      "strict": false,
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "book_court",
+      "description": "Book one or more squash courts for specific dates and times",
+      "strict": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "bookings": {
+            "type": "array",
+            "description": "Array of court bookings to make",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Date in YYYY-MM-DD format"
+                },
+                "time": {
+                  "type": "string",
+                  "description": "Time in HH:MM format (24-hour)"
+                },
+                "status": {
+                  "type": "string",
+                  "nullable": true,
+                  "default": null,
+                  "description": "Booking status (null by default)"
+                }
+              },
+              "required": [
+                "date",
+                "time"
+              ]
+            }
+          }
+        },
+        "required": [
+          "bookings"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "delete_booking",
+      "description": "Delete a booking by date",
+      "strict": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format"
+          }
+        },
+        "required": [
+          "date"
+        ]
+      }
+    }
+  }
+]

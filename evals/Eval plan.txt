@@ -1,0 +1,20 @@
+
+
+
+Need 2 categories of evaluation:
+1. Input accuracy: does the agent acquire the requisite data from the user and understand what the user wants.
+2. Booking accuracy: does the agent relay the correct data to the booking and back to the user.
+2. Tone: does the agent have the right tone, matching expected concision and casualness?
+
+
+You want 2 data sets:
+1. User<>Agent conversation
+2. Agent<>API exchange
+
+And the eval setup is like this:
+
+            | Input | Booking | Tone 
+------------|-------|---------|-------
+User<>Agent |  Y    |    N    |  Y
+------------|-------|---------|-------
+Agent<>API  |   N   |    Y    |  Y
