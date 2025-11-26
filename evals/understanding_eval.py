@@ -2,11 +2,13 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import json
+import cases_tool_requests, cases_confirm_user, cases_tool_response
 
 
 AGENT_MODEL = 'gpt-5-mini'
 EVALUATOR_MODEL = 'gpt-5'
 EVAL_TITLE = "SquashGPT understanding eval"
+TEST_CASES = cases_confirm_user.scenario_json
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv('openai_api_key'))
@@ -15,22 +17,25 @@ client = OpenAI(api_key=os.getenv('openai_api_key'))
 script_dir = os.path.dirname(os.path.abspath(__file__))
 prompt_path = os.path.join(script_dir, "gpt_prompt.txt")
 tools_path = os.path.join(script_dir, "tools.json")
-test_cases_path = os.path.join(script_dir, "test_cases.json")
+eval_prompt_path = os.path.join(script_dir, "Understanding_eval_prompt.txt")
 
 with open(prompt_path, "r") as f:
     YOUR_SYSTEM_PROMPT = f.read()
 
+with open(eval_prompt_path, "r") as f:
+    EVAL_PROMPT = f.read()
+
 with open(tools_path, "r") as f:
     TOOLS = json.load(f)
 
-with open(test_cases_path, "r") as f:
-    TEST_CASES = json.load(f)
+
+
 
 print(f"Loaded prompt from: {prompt_path}")
 print(f"Prompt length: {len(YOUR_SYSTEM_PROMPT)} characters\n")
 
 print(f"Loaded Tools json from {tools_path}")
-print(f"Loaded test cases from {test_cases_path}")
+print(f"Loaded test cases")
 
 # Step 1: Create the eval
 print("Creating eval...")
@@ -41,6 +46,8 @@ eval_result = client.evals.create(
         "item_schema": {
             "type": "object",
             "properties": {
+                "scenario": {"type": "string"},
+                "category": {"type": "string"},
                 "user_query": {"type": "string"},
                 "conversation_context": {"type": "array"},  # For multi-turn conversations
                 "tool_response": {"type": "string"}  # For tool response scenarios
@@ -64,48 +71,10 @@ FIRST, review the assistant's system prompt to understand what it's supposed to 
 """ + YOUR_SYSTEM_PROMPT + """
 ---
 
-Based on the system prompt above, evaluate the assistant's behavior.
+For your evaluation, assume you are in the PST time zone.
 
-There are FOUR scenarios:
-
-SCENARIO 1: Missing information (e.g., "Book me a court")
-- The assistant MUST ask for missing required information
-- For bookings: needs date AND time (and optionally court)
-- For deletions: needs date/time or booking identifier
-- Score 5: Asks for ALL missing required info clearly, NO tool call made
-- Score 4: Asks for some but not all missing info, NO tool call made
-- Score 3: Asks unclear questions OR makes a tool call when shouldn't
-- Score 2: Makes wrong tool call or doesn't ask for missing info
-- Score 1: Gives error or unhelpful response
-
-SCENARIO 2: Complete info, FIRST message (e.g., "Book court 3 tomorrow at 5pm")
-- The assistant MUST ask for confirmation before making the tool call
-- Score 5: Asks for clear confirmation, NO tool call made yet
-- Score 4: Asks for confirmation but unclear, NO tool call made
-- Score 3: Makes tool call immediately without asking for confirmation
-- Score 2: Asks for more info that was already provided
-- Score 1: Gives error or unhelpful response
-
-SCENARIO 3: User confirmed (e.g., user says "Yes" or "Confirm" after being asked)
-- The assistant MUST now call the appropriate tool
-- Expected tools are listed in the tools arguments of the eval
-- Score 5: Calls CORRECT tool with appropriate arguments
-- Score 4: Calls correct tool but arguments could be better
-- Score 3: Calls WRONG tool
-- Score 2: Doesn't call any tool when it should
-- Score 1: Gives error or unhelpful response
-
-SCENARIO 4: Tool response received (check if tool_response field is present in item data)
-- The assistant received a response from the booking API and must communicate it clearly
-- Score 5: Clearly states success/failure with all key details (time, date)
-- Score 4: States result clearly but missing 1-2 minor details
-- Score 3: Communicates the result but could be clearer or more complete
-- Score 2: Vague or confusing communication of the result
-- Score 1: Doesn't communicate the result properly or gives wrong information
-
-To check: Look at the full assistant response including tool_calls array.
-
-Return just the number."""
+"""
++ EVAL_PROMPT 
                 },
                 {
                     "role": "user",
@@ -130,16 +99,6 @@ Score this (1-5):"""
 
 print(f"✓ Eval created with ID: {eval_result.id}")
 
-"""# Step 2: Filter test cases for this eval
-# This eval only tests input understanding (missing_information, needs_confirmation, user_confirmed)
-test_cases = [
-    {
-        "user_query": tc["user_query"],
-        "conversation_context": tc.get("conversation_context", [])
-    }
-    for tc in TEST_CASES
-    if tc["category"] in ["missing_information", "needs_confirmation", "user_confirmed"]
-]"""
 
 # Step 3: Actually run conversations and generate responses
 print("\nGenerating test responses...")
@@ -239,6 +198,8 @@ for i, test_case in enumerate(TEST_CASES):
 
     # Build item with only schema-compliant fields
     item_data = {
+        "scenario": test_case.get("scenario", ""),
+        "category": test_case.get("category", ""),
         "user_query": test_case["user_query"],
         "conversation_context": test_case.get("conversation_context", []),
         "tool_response": test_case.get("tool_response", "")

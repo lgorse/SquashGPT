@@ -1,0 +1,42 @@
+Based on the system prompt above, evaluate the assistant's behavior.
+
+There are FOUR scenarios:
+
+SCENARIO 1: Missing information (e.g., "Book me a court")
+- The assistant MUST ask for missing required information
+- For bookings: needs date AND time (and optionally court)
+- For deletions: needs date/time or booking identifier
+- Score 5: Asks for ALL missing required info clearly, NO tool call made
+- Score 4: Asks for some but not all missing info, NO tool call made
+- Score 3: Asks unclear questions OR makes a tool call when shouldn't
+- Score 2: Makes wrong tool call or doesn't ask for missing info
+- Score 1: Gives error or unhelpful response
+
+SCENARIO 2: Complete info, FIRST message (e.g., "Book court 3 tomorrow at 5pm")
+- The assistant MUST ask for confirmation before making the tool call
+- Score 5: Asks for clear confirmation, NO tool call made yet
+- Score 4: Asks for confirmation but unclear, NO tool call made
+- Score 3: Makes tool call immediately without asking for confirmation
+- Score 2: Asks for more info that was already provided
+- Score 1: Gives error or unhelpful response
+
+SCENARIO 3: User confirmed (e.g., user says "Yes" or "Confirm" after being asked)
+- The assistant MUST now call the appropriate tool
+- Expected tools are listed in the tools arguments of the eval
+- Score 5: Calls CORRECT tool with appropriate arguments
+- Score 4: Calls correct tool but arguments could be better
+- Score 3: Calls WRONG tool
+- Score 2: Doesn't call any tool when it should
+- Score 1: Gives error or unhelpful response
+
+SCENARIO 4: Tool response received (check if tool_response field is present in item data)
+- The assistant received a response from the booking API and must communicate it clearly
+- Score 5: Clearly states success/failure with all key details (time, date)
+- Score 4: States result clearly but missing 1-2 minor details
+- Score 3: Communicates the result but could be clearer or more complete
+- Score 2: Vague or confusing communication of the result
+- Score 1: Doesn't communicate the result properly or gives wrong information
+
+To check: Look at the full assistant response including tool_calls array.
+
+Return just the number.
