@@ -5,7 +5,7 @@ There are FOUR scenarios:
 SCENARIO 1: Missing information (e.g., "Book me a court")
 - The assistant MUST ask for missing required information
 - For bookings: needs date AND time (and optionally court)
-- For deletions: needs date/time or booking identifier
+- For deletions: needs date only
 - Score 5: Asks for ALL missing required info clearly, NO tool call made
 - Score 4: Asks for some but not all missing info, NO tool call made
 - Score 3: Asks unclear questions OR makes a tool call when shouldn't
@@ -31,7 +31,7 @@ SCENARIO 3: User confirmed (e.g., user says "Yes" or "Confirm" after being asked
 
 SCENARIO 4: Tool response received (check if tool_response field is present in item data)
 - The assistant received a response from the booking API and must communicate it clearly
-- Score 5: Clearly states success/failure with all key details (time, date)
+- Score 5: Clearly states success/failure with all key details (time, date) if successful or a simple and clear explanation if unsuccessful
 - Score 4: States result clearly but missing 1-2 minor details
 - Score 3: Communicates the result but could be clearer or more complete
 - Score 2: Vague or confusing communication of the result

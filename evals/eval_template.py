@@ -2,13 +2,16 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import json
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import cases_tool_requests, cases_confirm_user, cases_tool_response
 
 
 AGENT_MODEL = 'gpt-5-mini'
 EVALUATOR_MODEL = 'gpt-5'
 EVAL_TITLE = "SquashGPT understanding eval"
-TEST_CASES = cases_confirm_user.scenario_json
+TEST_CASES = cases_tool_response.scenario_json
+TODAY = str(datetime.now(ZoneInfo('America/Los_Angeles')))
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv('openai_api_key'))
@@ -71,7 +74,7 @@ FIRST, review the assistant's system prompt to understand what it's supposed to 
 """ + YOUR_SYSTEM_PROMPT + """
 ---
 
-For your evaluation, assume you are in the PST time zone.
+For your evaluation, assume the date is """+ TODAY + """.
 
 """
 + EVAL_PROMPT 
@@ -177,7 +180,7 @@ def run_conversation(test_case):
 # Generate responses for all test cases
 eval_data = []
 for i, test_case in enumerate(TEST_CASES):
-    print(f"  - Testing case {i+1}/{len(TEST_CASES)}: {test_case['user_query'][:50]}...")
+    print(f"  - Testing case {i+1}/{len(TEST_CASES)}: {test_case['scenario'][:50]}...")
 
     agent_message = run_conversation(test_case)
 

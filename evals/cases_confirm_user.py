@@ -11,45 +11,80 @@ invalid_date_str = invalid_date.strftime("%B %-d")
 
 scenario_json = [
   {
-    "scenario": "Booking request without date or time",
-    "category": "confirm_booking",
+    "scenario": "Incorrect: Booking request without date or time",
+    "category": "confirmation_request",
     "user_query": "Book me a court",
     "conversation_context": [],
     "expected_behavior": "Should ask for date and time, NOT call tool"
   },
   {
-    "scenario": "Cancellation request without date",
-    "category": "confirm_booking",
-    "user_query": "Cancel my booking",
-    "conversation_context": [],
-    "expected_behavior": "Should ask which booking to cancel, NOT call tool"
-  },
-  {
-    "scenario": "Booking request without time",
-    "category": "confirm_booking",
+    "scenario": "Incorrect: Booking request without time",
+    "category": "confirmation_request",
     "user_query": "Book me a court tomorrow",
     "conversation_context": [],
     "expected_behavior": "Should ask for time, NOT call tool"
   },
   {
-    "scenario": "Correct booking request for tomorrow",
-    "category": "confirm_booking",
-    "user_query": "Book court 3 tomorrow at 6 pm",
+    "scenario": "Correct booking request - relative day",
+    "category": "confirmation_request",
+    "user_query": "Book a court tomorrow at 6 pm",
     "conversation_context": [],
     "expected_behavior": "Should ask for confirmation, NOT call tool yet"
   },
   {
-    "scenario": "Correct booking request for date",
-    "category": "confirm_booking",
+    "scenario": "Correct booking request - specific date",
+    "category": "confirmation_request",
     "user_query": "Reserve court 1 on "+str(valid_date)+" at 2pm",
     "conversation_context": [],
     "expected_behavior": "Should ask for confirmation, NOT call tool yet"
   },
   {
-    "scenario": "Correct cancellation request",
-    "category": "confirm_booking",
+    "scenario": "Correct booking request - specific weekday",
+    "category": "confirmation_request",
+    "user_query": "Book a court "+valid_date.strftime("%A"),
+    "conversation_context": [],
+    "expected_behavior": "Should ask for confirmation, providing the matching date in the format (%B %-d). Should NOT call tool yet"
+  },
+  {
+    "scenario": "Correct booking request with unnecessary information (court number)",
+    "category": "confirmation_request",
+    "user_query": "Book court 3 tomorrow at 6 pm",
+    "conversation_context": [],
+    "expected_behavior": "Should ask for confirmation, and not commit to a specific court. Do NOT call tool yet"
+  },
+  {
+    "scenario": "Incorrect: Cancellation request without date",
+    "category": "confirmation_request",
+    "user_query": "Cancel my booking",
+    "conversation_context": [],
+    "expected_behavior": "Should ask which date is the booking, NOT call tool"
+  },
+  {
+    "scenario": "Correct cancellation request - specific date",
+    "category": "confirmation_request",
+    "user_query": "Cancel my booking on "+str(valid_date),
+    "conversation_context": [],
+    "expected_behavior": "Should ask for confirmation. Should NOT call tool yet"
+  },
+  {
+    "scenario": "Correct cancellation request - relative day",
+    "category": "confirmation_request",
+    "user_query": "Cancel my booking tomorrow",
+    "conversation_context": [],
+    "expected_behavior": "Should ask for confirmation, providing tomorrow's date. Should NOT call tool yet"
+  },
+  {
+    "scenario": "Correct cancellation request - specific weekday",
+    "category": "confirmation_request",
+    "user_query": "Cancel my booking "+valid_date.strftime("%A"),
+    "conversation_context": [],
+    "expected_behavior": "Should ask for confirmation, providing the matching date in the format (%B %-d). Should NOT call tool yet"
+  },
+  {
+    "scenario": "Correct cancellation request with unnecessary information (time)",
+    "category": "confirmation_request",
     "user_query": "Cancel my booking on "+str(valid_date)+" at 5:15pm",
     "conversation_context": [],
-    "expected_behavior": "Should ask for confirmation, NOT call tool yet"
+    "expected_behavior": "Should ask for confirmation, without committing to the specific time. Should NOT call tool yet"
   }
 ]

@@ -18,3 +18,11 @@ And the eval setup is like this:
 User<>Agent |  Y    |    N    |  Y
 ------------|-------|---------|-------
 Agent<>API  |   N   |    Y    |  Y
+
+
+
+Now that you've sorted the eval process:
+
+*Return failed bookings as an error rather than success - which can be a simple as how the agent interprets returened bookings that don't have a confiredm status
+*Manage relative dates scenarios for tool responses
+*Control for proactivity and verbosity.

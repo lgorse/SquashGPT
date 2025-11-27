@@ -11,23 +11,71 @@ invalid_date_str = invalid_date.strftime("%B %-d")
 
 scenario_json = [
   {
-    "scenario": "Call booking function for correct booking request",
+    "scenario": "Call booking function for correct booking request on relative date",
     "category": "tool_request",
     "user_query": "Yes, please book it",
     "conversation_context": [
       {"role": "user", "content": "Book court 3 tomorrow at 6 pm"},
-      {"role": "assistant", "content": "I'll book court 3 "+str(tomorrow_str)+" at 6 PM. Should I proceed with this booking?"}
+      {"role": "assistant", "content": "I'll book a court "+str(tomorrow_str)+" at 6 PM. Should I proceed with this booking?"}
     ],
     "expected_behavior": "Should call book_court tool with correct parameters"
   },
   {
-    "scenario": "Call cancel function for correct cancellation request",
+    "scenario": "Call booking function for correct booking request on fixed date",
+    "category": "tool_request",
+    "user_query": "Yes, please book it",
+    "conversation_context": [
+      {"role": "user", "content": "Book a court "+str(valid_date)+" at 6 pm"},
+      {"role": "assistant", "content": "I'll book a court "+tomorrow_str+" at 6 PM. Should I proceed with this booking?"}
+    ],
+    "expected_behavior": "Should call book_court tool with correct parameters"
+  },
+  {
+    "scenario": "Call booking function for correct booking request on weekday",
+    "category": "tool_request",
+    "user_query": "Yes, please book it",
+    "conversation_context": [
+      {"role": "user", "content": "Book a court "+valid_date.strftime("%A")+" at 6 pm"},
+      {"role": "assistant", "content": "I'll book a court "+valid_date_str+" at 6 PM. Should I proceed with this booking?"}
+    ],
+    "expected_behavior": "Should call book_court tool with correct parameters"
+  },
+  {
+    "scenario": "Get user's bookings",
+    "category": "tool_request",
+    "user_query": "Get my bookings",
+    "conversation_context": [],
+    "expected_behavior": "Should call the get_bookings function"
+  },
+  {
+    "scenario": "Call cancel function for cancellation request on specific date",
+    "category": "tool_request",
+    "user_query": "Yes",
+    "conversation_context": [
+      {"role": "user", "content": "Cancel my booking on "+str(valid_date)+" at 5:15pm"},
+      {"role": "assistant", "content": "I'll cancel your booking for "+valid_date_str+". Should I proceed?"}
+    ],
+    "expected_behavior": "Should call delete_booking tool with correct date"
+  },
+  {
+    "scenario": "Call cancel function for correct cancellation request on relative date",
     "category": "tool_request",
     "user_query": "Confirm",
     "conversation_context": [
-      {"role": "user", "content": "Cancel my booking on "+str(valid_date)+" at 5:15pm"},
-      {"role": "assistant", "content": "I'll cancel your booking for "+valid_date_str+" at 5:15 PM. Should I proceed?"}
+      {"role": "user", "content": "Cancel my booking tomorrow"},
+      {"role": "assistant", "content": "I'll cancel your booking for "+tomorrow_str+". Should I proceed?"}
     ],
     "expected_behavior": "Should call delete_booking tool with correct date"
+  },
+  {
+    "scenario": "Call cancel function for correct booking request on weekday",
+    "category": "tool_request",
+    "user_query": "Confirmed",
+    "conversation_context": [
+      {"role": "user", "content": "Cancel my court on "+valid_date.strftime("%A")},
+      {"role": "assistant", "content": "I'll cancel your court on "+valid_date_str+". Please confirm"}
+    ],
+    "expected_behavior": "Should call book_court tool with correct parameters"
   }
+
 ]
