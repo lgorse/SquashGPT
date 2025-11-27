@@ -10,7 +10,7 @@ import cases_tool_requests, cases_confirm_user, cases_tool_response
 AGENT_MODEL = 'gpt-5-mini'
 EVALUATOR_MODEL = 'gpt-5'
 EVAL_TITLE = "SquashGPT understanding eval"
-TEST_CASES = cases_tool_requests.scenario_json
+TEST_CASES = cases_confirm_user.scenario_json
 TODAY = str(datetime.now(ZoneInfo('America/Los_Angeles')))
 
 load_dotenv()
@@ -23,7 +23,7 @@ tools_path = os.path.join(script_dir, "tools.json")
 eval_prompt_path = os.path.join(script_dir, "Understanding_eval_prompt.txt")
 
 with open(prompt_path, "r") as f:
-    YOUR_SYSTEM_PROMPT = f.read()
+    YOUR_SYSTEM_PROMPT = "Today is "+TODAY+". "+f.read()
 
 with open(eval_prompt_path, "r") as f:
     EVAL_PROMPT = f.read()
