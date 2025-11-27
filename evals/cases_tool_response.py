@@ -30,7 +30,7 @@ scenario_json = [
     "conversation_context": [
     {"role": "user", "content": "Book a court tomorrow at 6pm"},
     {"role":"assistant","content":"I'll book a court tomorrow at 6 pm"}],
-    "tool_response": "{\"status\": \"success\", \"bookings\" : [{\"court\": 3, \"date\": \"" + str(tomorrow) + "\", \"time\": \"18:00\"}]}",
+    "tool_response": "[{\"court\": 3, \"date\": \"" + str(tomorrow) + "\", \"time\": \"18:00\", \"status\" : \"confirmed\"}]",
     "expected_behavior": "Should confirm booking with date, time"
   },
   {
@@ -40,7 +40,7 @@ scenario_json = [
      "conversation_context": [
     {"role": "user", "content": "Book a court tomorrow at 6pm"},
     {"role":"assistant","content":"I'll book a court "+tomorrow_str+" at 6 pm"}],
-    "tool_response": "{\"status\": \"error\", \"message\": \"Courts not available\"}",
+    "tool_response": "[{\"court\": 3, \"date\": \"" + str(tomorrow) + "\", \"time\": \"18:00\", \"status\" : \"Slots not found\"}]",
     "expected_behavior": "Should explain the failure"
   },
   {
@@ -50,7 +50,7 @@ scenario_json = [
       "conversation_context": [
     {"role": "user", "content": "Book a court on "+str(invalid_date)+" at 6pm"},
     {"role":"assistant","content":"I'll book a court on "+invalid_date_str+" at 6 pm"}],
-    "tool_response": "{\"status\": \"error\", \"message\": \"You cannot book a court this far into the future\"}",
+    "tool_response": "[{\"court\": 3, \"date\": \"" + str(invalid_date) + "\", \"time\": \"18:00\", \"status\" : \"The reservation you're trying to book is too far ahead in the future\"}]",
     "expected_behavior": "Should explain the failure"
   },
   {
@@ -60,7 +60,7 @@ scenario_json = [
      "conversation_context": [
     {"role": "user", "content": "Book a court "+str(valid_date)+" at 6pm"},
     {"role":"assistant","content":"I'll book a court on "+valid_date_str+" at 6 pm"}],
-    "tool_response": "{\"status\": \"error\", \"message\": \"You cannot book multiple courts on the same day\"}",
+    "tool_response": "[{\"court\": 3, \"date\": \"" + str(valid_date) + "\", \"time\": \"18:00\", \"status\" : \"You have reached your maximum number of courts for this day\"}]",
     "expected_behavior": "Should explain the failure"
   },
   {

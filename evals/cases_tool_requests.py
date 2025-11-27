@@ -26,7 +26,7 @@ scenario_json = [
     "user_query": "Yes, please book it",
     "conversation_context": [
       {"role": "user", "content": "Book a court "+str(valid_date)+" at 6 pm"},
-      {"role": "assistant", "content": "I'll book a court "+tomorrow_str+" at 6 PM. Should I proceed with this booking?"}
+      {"role": "assistant", "content": "I'll book a court "+valid_date_str+" at 6 PM. Should I proceed with this booking?"}
     ],
     "expected_behavior": "Should call book_court tool with correct parameters"
   },

@@ -10,7 +10,7 @@ import cases_tool_requests, cases_confirm_user, cases_tool_response
 AGENT_MODEL = 'gpt-5-mini'
 EVALUATOR_MODEL = 'gpt-5'
 EVAL_TITLE = "SquashGPT understanding eval"
-TEST_CASES = cases_tool_response.scenario_json
+TEST_CASES = cases_tool_requests.scenario_json
 TODAY = str(datetime.now(ZoneInfo('America/Los_Angeles')))
 
 load_dotenv()
@@ -34,7 +34,7 @@ with open(tools_path, "r") as f:
 
 
 
-print(f"Loaded prompt from: {prompt_path}")
+print(f"Loaded agent prompt from: {prompt_path}")
 print(f"Prompt length: {len(YOUR_SYSTEM_PROMPT)} characters\n")
 
 print(f"Loaded Tools json from {tools_path}")
@@ -67,7 +67,7 @@ eval_result = client.evals.create(
             "input": [
                 {
                     "role": "system",
-                    "content": """You are evaluating if the assistant makes correct tool call decisions and communicates tool results properly.
+                    "content": """You are evaluating if the assistant correctly manages a user's booking requests.
 
 FIRST, review the assistant's system prompt to understand what it's supposed to do:
 ---
@@ -146,7 +146,7 @@ def run_conversation(test_case):
                     }
                 }
             ]
-
+            
             messages.append(assistant_msg)
 
             # Add the simulated tool response
@@ -174,7 +174,6 @@ def run_conversation(test_case):
             messages=messages,
             tools=TOOLS
         )
-
         return response.choices[0].message
 
 # Generate responses for all test cases
