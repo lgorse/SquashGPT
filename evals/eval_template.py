@@ -11,7 +11,7 @@ AGENT_MODEL = 'gpt-5-mini'
 EVALUATOR_MODEL = 'gpt-5'
 EVAL_TITLE = "SquashGPT understanding eval"
 
-TEST_CASES = cases_tool_response.scenario_json
+TEST_CASES = cases_confirm_user.scenario_json
 """TEST_CASES.extend(cases_tool_requests.scenario_json)
 TEST_CASES.extend(cases_tool_response.scenario_json)"""
 

@@ -6,6 +6,7 @@ SCENARIO 1: Missing information (e.g., "Book me a court")
 - The assistant MUST ask for missing required information
 - For bookings: needs date AND time (and optionally court)
 - For deletions: needs date only
+- The assistant must detect if a court booking is outside an eligible start time (eligible start times listed below)
 - Score 5: Asks for ALL missing required info clearly, NO tool call made
 - Score 4: Asks for some but not all missing info, NO tool call made
 - Score 3: Asks unclear questions OR makes a tool call when shouldn't
@@ -14,10 +15,11 @@ SCENARIO 1: Missing information (e.g., "Book me a court")
 
 SCENARIO 2: Complete info, FIRST message (e.g., "Book court 3 tomorrow at 5pm")
 - The assistant MUST ask for confirmation before making the tool call
+- The assistant must detect if a court booking is outside an eligible start time (eligible start times listed below)
 - Score 5: Asks for clear confirmation, NO tool call made yet
 - Score 4: Asks for confirmation but unclear, NO tool call made
-- Score 3: Makes tool call immediately without asking for confirmation
-- Score 2: Asks for more info that was already provided
+- Score 3: Makes tool call immediately without asking for confirmation or asks for more info that was already provided 
+- Score 2: Asks for confirmation on an ineligible start time without warning the user
 - Score 1: Gives error or unhelpful response
 
 SCENARIO 3: User confirmed (e.g., user says "Yes" or "Confirm" after being asked)
@@ -40,3 +42,45 @@ SCENARIO 4: Tool response received (check if tool_response field is present in i
 To check: Look at the full assistant response including tool_calls array.
 
 Return just the number.
+
+Eligible start time JSON:
+
+{
+  "weekdays": {
+    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "slots": [
+      {"start": "9:00 am", "end": "9:45 am"},
+      {"start": "9:45 am", "end": "10:30 am"},
+      {"start": "10:30 am", "end": "11:15 am"},
+      {"start": "11:15 am", "end": "12:00 pm"},
+      {"start": "12:00 pm", "end": "12:45 pm"},
+      {"start": "12:45 pm", "end": "1:30 pm"},
+      {"start": "1:30 pm", "end": "2:15 pm"},
+      {"start": "2:15 pm", "end": "3:00 pm"},
+      {"start": "3:00 pm", "end": "3:45 pm"},
+      {"start": "3:45 pm", "end": "4:30 pm"},
+      {"start": "4:30 pm", "end": "5:15 pm"},
+      {"start": "5:15 pm", "end": "6:00 pm"},
+      {"start": "6:00 pm", "end": "6:45 pm"},
+      {"start": "6:45 pm", "end": "7:30 pm"},
+      {"start": "7:30 pm", "end": "8:15 pm"},
+      {"start": "8:15 pm", "end": "9:00 pm"}
+    ]
+  },
+  "weekends": {
+    "days": ["Saturday", "Sunday"],
+    "slots": [
+      {"start": "9:00 am", "end": "9:45 am"},
+      {"start": "9:45 am", "end": "10:30 am"},
+      {"start": "10:30 am", "end": "11:15 am"},
+      {"start": "11:15 am", "end": "12:00 pm"},
+      {"start": "12:00 pm", "end": "12:45 pm"},
+      {"start": "12:45 pm", "end": "1:30 pm"},
+      {"start": "1:30 pm", "end": "2:15 pm"},
+      {"start": "2:15 pm", "end": "3:00 pm"},
+      {"start": "3:00 pm", "end": "3:45 pm"},
+      {"start": "3:45 pm", "end": "4:30 pm"},
+      {"start": "4:30 pm", "end": "5:15 pm"}
+    ]
+  }
+}

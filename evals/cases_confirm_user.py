@@ -25,30 +25,44 @@ scenario_json = [
     "expected_behavior": "Should ask for time, NOT call tool"
   },
   {
+    "scenario": "Incorrect: booking request for ineligible time",
+    "category": "confirmation_request",
+    "user_query": "Book a court tomorrow at 9:15 am",
+    "conversation_context": [],
+    "expected_behavior": "Should ask the user to correct their request. Should not return a confirmation request OR call the booking tool"
+  },
+  {
+    "scenario": "Correct - infers the correct AM/PM of an ambiguous time request",
+    "category": "confirmation_request",
+    "user_query": "Book a court tomorrow at 9",
+    "conversation_context": [],
+    "expected_behavior": "Should confirm with the user as 9 am"
+  },
+  {
     "scenario": "Correct booking request - relative day",
     "category": "confirmation_request",
-    "user_query": "Book a court tomorrow at 6 pm",
+    "user_query": "Book a court tomorrow at 3 pm",
     "conversation_context": [],
     "expected_behavior": "Should ask for confirmation, NOT call tool yet"
   },
   {
     "scenario": "Correct booking request - specific date",
     "category": "confirmation_request",
-    "user_query": "Reserve court 1 on "+str(valid_date)+" at 2pm",
+    "user_query": "Reserve court 1 on "+str(valid_date)+" at 2:15pm",
     "conversation_context": [],
     "expected_behavior": "Should ask for confirmation, NOT call tool yet"
   },
   {
     "scenario": "Correct booking request - specific weekday",
     "category": "confirmation_request",
-    "user_query": "Book a court "+valid_date.strftime("%A")+" at 6 pm",
+    "user_query": "Book a court "+valid_date.strftime("%A")+" at 3 pm",
     "conversation_context": [],
     "expected_behavior": "Should ask for confirmation, providing the matching date in the format (%B %-d). Should NOT call tool yet"
   },
   {
     "scenario": "Correct booking request with unnecessary information (court number)",
     "category": "confirmation_request",
-    "user_query": "Book court 3 tomorrow at 6 pm",
+    "user_query": "Book court 3 tomorrow at 3 pm",
     "conversation_context": [],
     "expected_behavior": "Should ask for confirmation, and not commit to a specific court. Do NOT call tool yet"
   },
@@ -83,7 +97,7 @@ scenario_json = [
   {
     "scenario": "Correct cancellation request with unnecessary information (time)",
     "category": "confirmation_request",
-    "user_query": "Cancel my booking on "+str(valid_date)+" at 5:15pm",
+    "user_query": "Cancel my booking on "+str(valid_date)+" at 2:15pm",
     "conversation_context": [],
     "expected_behavior": "Should ask for confirmation, without committing to the specific time. Should NOT call tool yet"
   }

@@ -15,8 +15,8 @@ scenario_json = [
     "category": "tool_request",
     "user_query": "Yes, please book it",
     "conversation_context": [
-      {"role": "user", "content": "Book court 3 tomorrow at 6 pm"},
-      {"role": "assistant", "content": "I'll book a court "+str(tomorrow_str)+" at 6 PM. Should I proceed with this booking?"}
+      {"role": "user", "content": "Book court 3 tomorrow at 3 pm"},
+      {"role": "assistant", "content": "I'll book a court "+str(tomorrow_str)+" at 3 PM. Should I proceed with this booking?"}
     ],
     "expected_behavior": "Should call book_court tool with correct parameters"
   },
@@ -25,8 +25,8 @@ scenario_json = [
     "category": "tool_request",
     "user_query": "Yes, please book it",
     "conversation_context": [
-      {"role": "user", "content": "Book a court "+str(valid_date)+" at 6 pm"},
-      {"role": "assistant", "content": "I'll book a court "+valid_date_str+" at 6 PM. Should I proceed with this booking?"}
+      {"role": "user", "content": "Book a court "+str(valid_date)+" at 3 pm"},
+      {"role": "assistant", "content": "I'll book a court "+valid_date_str+" at 3 PM. Should I proceed with this booking?"}
     ],
     "expected_behavior": "Should call book_court tool with correct parameters"
   },
@@ -35,8 +35,8 @@ scenario_json = [
     "category": "tool_request",
     "user_query": "Yes, please book it",
     "conversation_context": [
-      {"role": "user", "content": "Book a court "+valid_date.strftime("%A")+" at 6 pm"},
-      {"role": "assistant", "content": "I'll book a court "+valid_date_str+" at 6 PM. Should I proceed with this booking?"}
+      {"role": "user", "content": "Book a court "+valid_date.strftime("%A")+" at 1:30pm"},
+      {"role": "assistant", "content": "I'll book a court "+valid_date_str+" at 1:30PM. Should I proceed with this booking?"}
     ],
     "expected_behavior": "Should call book_court tool with correct parameters"
   },
