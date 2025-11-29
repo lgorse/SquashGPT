@@ -16,11 +16,12 @@ scenario_json = [
     "user_query": "What are my bookings?",
     "tool_response": "{\"status\": \"success\", \"bookings\": [{\"date\": \""+str(tomorrow)+"\", \"time\": \"5:15 pm\", \"status\": null, \"court\": 8}, {\"date\": \""+str(valid_date)+"\", \"time\": \"11:15 am\", \"status\": null, \"court\": 1}]}",
     "expected_behavior": "Should clearly list all bookings with court, date, and time"
-  },{
+  },
+  {
     "scenario": "Failure: get bookings has no courts",
     "category": "tool_response",
     "user_query": "What are my bookings?",
-    "tool_response": "{\"status\": \"error\", \"message\": \"No bookings found\"}",
+    "tool_response": "{\"status\": \"error\", \"message\": \"No slots found\"}",
     "expected_behavior": "Should convey that there are no bookings upcoming."
   },
   {

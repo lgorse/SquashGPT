@@ -23,4 +23,12 @@ Agent<>API  |   N   |    Y    |  Y
 
 Now that you've sorted the eval process:
 
-*Control for proactivity and verbosity.
+Create a tone eval to make sure the assistant maintains a conversational, personal vibe.
+* The assistant has an impersonal vibe where it says things like "Confirm to proceed? (Yes to confirm, No to cancel.)".
+* Instead, the assistant should respond with "Confirming I should book a court on XX at YY?" or "Book XX on YY. Can you confirm?"
+* This makes it sound like a simple bot rather than a conversation.
+
+So 3 criteria:
+- concision
+- no proactive offers
+- no presets ("yes" to confirm, "no" to decline)

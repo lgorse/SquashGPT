@@ -41,7 +41,7 @@ scenario_json = [
   {
     "scenario": "Correct booking request - specific weekday",
     "category": "confirmation_request",
-    "user_query": "Book a court "+valid_date.strftime("%A"),
+    "user_query": "Book a court "+valid_date.strftime("%A")+" at 6 pm",
     "conversation_context": [],
     "expected_behavior": "Should ask for confirmation, providing the matching date in the format (%B %-d). Should NOT call tool yet"
   },

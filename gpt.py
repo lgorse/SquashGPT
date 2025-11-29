@@ -6,6 +6,8 @@ import os
 import squash
 import court
 from dotenv import load_dotenv
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv('openai_api_key'))
@@ -23,8 +25,9 @@ def stream(request):
     data = request.json
     user_id = data['user_id']
     user_message = data['message']
-    
+
     previous_response_id = user_conversations.get(user_id)
+    today_date = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
 
     def generate():
         yield f"data: {json.dumps({'status': 'api_processing'})}\n\n"
@@ -35,7 +38,10 @@ def stream(request):
         try:
             stream = client.responses.create(
                 prompt={"id": PROMPT_ID},
-                input=[{"role": "user", "content": user_message}],
+                input=[
+                    {"role": "system", "content": f"Today's date is {today_date}."},
+                    {"role": "user", "content": user_message}
+                ],
                 previous_response_id=previous_response_id,
                 stream=True
             )

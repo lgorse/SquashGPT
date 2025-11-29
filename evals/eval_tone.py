@@ -9,7 +9,7 @@ import cases_tool_requests, cases_confirm_user, cases_tool_response
 
 AGENT_MODEL = 'gpt-5-mini'
 EVALUATOR_MODEL = 'gpt-5'
-EVAL_TITLE = "SquashGPT understanding eval"
+EVAL_TITLE = "SquashGPT tone eval"
 
 TEST_CASES = cases_tool_response.scenario_json
 """TEST_CASES.extend(cases_tool_requests.scenario_json)
@@ -24,13 +24,13 @@ client = OpenAI(api_key=os.getenv('openai_api_key'))
 script_dir = os.path.dirname(os.path.abspath(__file__))
 prompt_path = os.path.join(script_dir, "gpt_prompt.txt")
 tools_path = os.path.join(script_dir, "tools.json")
-eval_prompt_path = os.path.join(script_dir, "Understanding_eval_prompt.txt")
+##eval_prompt_path = os.path.join(script_dir, "tone_eval_prompt.txt")
 
 with open(prompt_path, "r") as f:
     YOUR_SYSTEM_PROMPT = "Today is "+TODAY+". "+f.read()
 
-with open(eval_prompt_path, "r") as f:
-    EVAL_PROMPT = f.read()
+"""with open(eval_prompt_path, "r") as f:
+    EVAL_PROMPT = f.read()"""
 
 with open(tools_path, "r") as f:
     TOOLS = json.load(f)
@@ -66,40 +66,93 @@ eval_result = client.evals.create(
     testing_criteria=[
         {
             "type": "score_model",
-            "name": EVAL_TITLE,
+            "name": "Concision",
             "model": EVALUATOR_MODEL,
             "input": [
                 {
                     "role": "system",
-                    "content": """You are evaluating if the assistant correctly manages a user's booking requests.
+                    "content": """You are evaluating the concision of an assistant's response.
+                    FIRST, review the assistant's system prompt to understand what it's supposed to do: """ + YOUR_SYSTEM_PROMPT + """
 
-FIRST, review the assistant's system prompt to understand what it's supposed to do:
----
-""" + YOUR_SYSTEM_PROMPT + """
----
+CRITERION: The response should be brief and to the point, typically under 50 words unless explaining something complex.
 
-For your evaluation, assume the date is """+ TODAY + """.
+PASS: Response is concise and direct
+FAIL: Response is unnecessarily verbose, repetitive, or contains excessive elaboration
 
-"""
-+ EVAL_PROMPT 
+Return only "pass" or "fail"."""
                 },
                 {
                     "role": "user",
-                    "content": """Conversation history:
-{{item.conversation_context}}
+                    "content": """Assistant response:
+{{sample.choices[0].message.content}}
 
-Current user message: {{item.user_query}}
-
-Tool response (if applicable): {{item.tool_response}}
-
-Full assistant response:
-{{sample.choices[0].message}}
-
-Score this (1-5):"""
+Evaluation:"""
                 }
             ],
-            "range": [1, 5],
-            "pass_threshold": 4.0,
+            "range": [0, 1],
+            "pass_threshold": 0.8,
+        },
+        {
+            "type": "score_model",
+            "name": "No proactive booking",
+            "model": EVALUATOR_MODEL,
+            "input": [
+                {
+                    "role": "system",
+                    "content": """You are evaluating whether the assistant waits for the user to request booking.
+
+                    FIRST, review the assistant's system prompt to understand what it's supposed to do: """ + YOUR_SYSTEM_PROMPT + """
+
+CRITERION: The assistant should ONLY initiate or suggest booking when the user explicitly requests it.
+Make sure to look at the conversation context to determine whether the user has confirmed their request already. 
+The user may provide terse responses ("yes", "OK") as confirmation;  these count as explicit requests that the agent should act upon.
+
+PASS: Assistant waits for user to request booking, doesn't proactively offer. 
+FAIL: Assistant suggests, offers, or asks about booking without being prompted
+
+Return only "pass" or "fail"."""
+                },
+                {
+                    "role": "user",
+                    "content": """User message: {{item.user_query}}
+
+Assistant response:
+{{sample.choices[0].message.content}}
+
+Evaluation:"""
+                }
+            ],
+            "range": [0, 1],
+            "pass_threshold": 0.9,
+        },
+        {
+            "type": "score_model",
+            "name": "Natural language",
+            "model": EVALUATOR_MODEL,
+            "input": [
+                {
+                    "role": "system",
+                    "content": """You are evaluating whether the assistant uses natural, conversational language.
+                    FIRST, review the assistant's system prompt to understand what it's supposed to do: """ + YOUR_SYSTEM_PROMPT + """
+
+CRITERION: 
+The response can be direct and concise, but should not sound robotic or like it's giving the user multiple-choice options.
+
+PASS: Uses natural phrases like "Would you like me to...", "Sure, I can...", "Let me check...", "Confirming:.."
+FAIL: Uses robotic command-style language like "Type YES to confirm", "Respond with option A/B/C", "Enter your choice"
+
+Return only "pass" or "fail"."""
+                },
+                {
+                    "role": "user",
+                    "content": """Assistant response:
+{{sample.choices[0].message.content}}
+
+Evaluation:"""
+                }
+            ],
+            "range": [0, 1],
+            "pass_threshold": 0.8,
         }
     ],
 )
