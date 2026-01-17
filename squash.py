@@ -18,47 +18,52 @@ from dotenv import load_dotenv
 
 from flask import Flask, jsonify, request
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+from seleniumbase import Driver
+
+
 
 app = Flask(__name__)
 
 
 
 def setup_driver(mode=None):
-    print(f"Setting up Chrome WebDrive {mode}")
-    chrome_options = Options()
-    if not mode == "browser":
-        chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--enable-logging")
-    chrome_options.set_capability(
-        "goog:loggingPrefs", {"performance": "ALL", "browser": "ALL"}
-    )
-    chrome_options.add_argument("--enable-javascript")
+    print(f"Setting up Chrome WebDriver with SeleniumBase UC Mode {mode}")
+
+    headless = not mode == "browser"
+
+    # Build chromium arguments list
+    chromium_args = []
+    chromium_args.append("--disable-dev-shm-usage")
+    chromium_args.append("--enable-logging")
+    chromium_args.append("--enable-javascript")
     # Force Chrome to not use any user data directory
-    chrome_options.add_argument("--no-first-run")
-    chrome_options.add_argument("--no-default-browser-check")
-    chrome_options.add_argument("--disable-default-apps")
-    chrome_options.add_argument("--disable-extensions")
-    ## chrome_options.binary_location = "/usr/bin/google-chrome"
+    chromium_args.append("--no-first-run")
+    chromium_args.append("--no-default-browser-check")
+    chromium_args.append("--disable-default-apps")
+    chromium_args.append("--disable-extensions")
 
     # Memory optimization (CRITICAL for Railway)
-    chrome_options.add_argument("--memory-pressure-off")
-    chrome_options.add_argument("--max_old_space_size=2048")  # Limit memory
-    chrome_options.add_argument("--no-zygote")
-    chrome_options.add_argument("--disable-background-timer-throttling")
-    chrome_options.add_argument("--disable-backgrounding-occluded-windows")
-    chrome_options.add_argument("--disable-renderer-backgrounding")
+    chromium_args.append("--memory-pressure-off")
+    chromium_args.append("--max_old_space_size=2048")
+    chromium_args.append("--no-zygote")
+    chromium_args.append("--disable-background-timer-throttling")
+    chromium_args.append("--disable-backgrounding-occluded-windows")
+    chromium_args.append("--disable-renderer-backgrounding")
 
-    # Make sure you have ChromeDriver installed and in PATH
-    driver = webdriver.Chrome(options=chrome_options)
+    # Additional bot detection evasion
+    chromium_args.append("--disable-blink-features=AutomationControlled")
+
+    # Use SeleniumBase Driver with UC mode for better Cloudflare evasion
+    driver = Driver(
+        uc=True,  # Enable undetected mode (uses undetected-chromedriver internally)
+        headless=headless,
+        log_cdp=False,
+        no_sandbox=True,
+        disable_gpu=True,
+        incognito=False,
+        chromium_arg=",".join(chromium_args)
+    )
+
     return driver
 
 def booking_window():
@@ -143,16 +148,13 @@ def main():
     else:
         driver = setup_driver(args.mode)
         try: 
-            date = "2025-10-08"
+            date = "2026-01-19"
             load_dotenv()
             full_name=os.getenv('full_name')
             login.login_to_clublocker(driver)
             navigate_to_calendar(date, driver)
-            booking = court.delete_booking(date, full_name, driver)
-            if booking:
-                print(f"Booking status:{booking.status} of booking on {booking.date} at {booking.time} for court {booking.court}")
-            else:
-                print(f"Error: no slot found")
+            response, status_code = court.delete_booking({"date":date})
+            print(f"Response: {response}, Status: {status_code}")
         except Exception as e:
             print(f"{e}")
         input("Press any key")

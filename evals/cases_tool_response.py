@@ -32,7 +32,17 @@ scenario_json = [
     {"role": "user", "content": "Book a court tomorrow at 3pm"},
     {"role":"assistant","content":"I'll book a court tomorrow at 3 pm"}],
     "tool_response": "[{\"court\": 3, \"date\": \"" + str(tomorrow) + "\", \"time\": \"15:00\", \"status\" : \"confirmed\"}]",
-    "expected_behavior": "Should confirm booking with date, time"
+    "expected_behavior": "Should confirm booking with date, time."
+  },
+  {
+    "scenario": "Successful booking request - no court number returned",
+    "category": "tool_response",
+    "user_query": "Yes",
+    "conversation_context": [
+    {"role": "user", "content": "Book a court tomorrow at 3pm"},
+    {"role":"assistant","content":"I'll book a court tomorrow at 3 pm"}],
+    "tool_response": "[{\"court\": "", \"date\": \"" + str(tomorrow) + "\", \"time\": \"15:00\", \"status\" : \"confirmed\"}]",
+    "expected_behavior": "Should confirm booking with date, time. Should not mention the absence of a court number."
   },
   {
     "scenario": "Failed booking request - no courts",

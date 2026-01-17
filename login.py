@@ -72,6 +72,7 @@ def login_to_clublocker(driver):
                 print(f"Current URL after login attempt: {current_url}")
             else:
                 print("Could not find submit button")
+            
         else:
             print("Could not find username and/or password fields")
             print(

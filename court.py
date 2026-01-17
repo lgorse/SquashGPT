@@ -311,6 +311,7 @@ def delete_booking(data):
             full_name=os.getenv('full_name')
             login.login_to_clublocker(driver)
             squash.navigate_to_calendar(date, driver)
+            print("got here")
             booking, slot = day_reservation(date, full_name, driver)
             wait = WebDriverWait(driver, 5)
             if slot:
