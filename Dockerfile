@@ -18,23 +18,30 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /app
 
+
 # Install Python dependencies
 COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
+# Fix SeleniumBase driver permissions
+RUN chmod -R 777 /opt/venv/lib/python3.14/site-packages/seleniumbase/drivers || true
+
 # Copy application files
 COPY . .
 
-# Create writable cache directories for selenium
+# Create writable cache directories for selenium and seleniumbase
 RUN mkdir -p /home/seluser/.cache/selenium && \
+    mkdir -p /tmp/sb_driver_cache && \
     chown -R seluser:seluser /home/seluser/.cache && \
-    chmod -R 755 /home/seluser/.cache
+    chmod -R 777 /home/seluser/.cache && \
+    chmod -R 777 /tmp/sb_driver_cache
 
 # Set environment variables
 ENV CHROME_BIN=/usr/bin/google-chrome
 ENV DISPLAY=:99
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV SB_DRIVER_CACHE=/tmp/sb_driver_cache
 
 # Create app directory owned by seluser
 RUN chown -R seluser:seluser /app
