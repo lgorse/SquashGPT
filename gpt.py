@@ -5,6 +5,7 @@ import time
 import os
 import squash
 import court
+import perf_logger
 from dotenv import load_dotenv
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -30,11 +31,14 @@ def stream(request):
     today_date = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
 
     def generate():
+        stream_start = perf_logger.log_perf_start("gpt.stream", user_id)
+
         yield f"data: {json.dumps({'status': 'api_processing'})}\n\n"
         time.sleep(0.1)
-        
+
         yield f"data: {json.dumps({'status': 'calling_openai'})}\n\n"
-        
+        openai_start = perf_logger.log_perf_start("openai.responses.create", user_id)
+
         try:
             stream = client.responses.create(
                 prompt={"id": PROMPT_ID},
@@ -49,9 +53,13 @@ def stream(request):
             response_id = None
             full_response = ""
             tool_calls = []
+            first_event_logged = False
 
-            
+
             for event in stream:
+                if not first_event_logged and hasattr(event, 'type'):
+                    perf_logger.log_perf_end("openai.responses.create", openai_start, user_id)
+                    first_event_logged = True
                 if not hasattr(event, 'type'):
                     continue
                 if event.type == "response.output_text.delta":
@@ -88,6 +96,7 @@ def stream(request):
 
             if tool_calls:
                 yield f"data: {json.dumps({'status': 'executing_tools'})}\n\n"
+                tools_start = perf_logger.log_perf_start("execute_squash", user_id)
                 # Execute tools and get final response by yielding from the generator
                 for event in execute_squash(tool_calls, response_id, user_id):
                     yield event
@@ -98,14 +107,17 @@ def stream(request):
                             final_response_id = event_data['final_response_id']
                             user_conversations[user_id] = final_response_id
                             response_id = final_response_id
-                    
+                perf_logger.log_perf_end("execute_squash", tools_start, user_id)
+
             elif response_id:
                 user_conversations[user_id] = response_id
                 print(response_id)
             
             yield f"data: {json.dumps({'status': 'complete', 'response_id': response_id})}\n\n"
-            
+            perf_logger.log_perf_end("gpt.stream", stream_start, user_id)
+
         except Exception as e:
+            perf_logger.log_perf_end("gpt.stream", stream_start, user_id)
             yield f"data: {json.dumps({'status': 'error', 'message': str(e)})}\n\n"
     
     return Response(
@@ -124,12 +136,13 @@ def execute_squash(tool_calls, response_id, user_id):
 
     for tool_call in tool_calls:
         tool_name = tool_call['name']
-        
+
         tool_args = tool_call['arguments']
         # Execute the tool
         if tool_name in AVAILABLE_TOOLS:
             try:
                 result = None
+                tool_start = perf_logger.log_perf_start(f"tool:{tool_name}", user_id)
                 if tool_name == "get_bookings":
                     result = court.my_reservations()
                 elif tool_name == "book_court":
@@ -137,6 +150,7 @@ def execute_squash(tool_calls, response_id, user_id):
                     result = court.book_courts(tool_args)
                 elif tool_name == "delete_booking":
                     result = court.delete_booking(tool_args)
+                perf_logger.log_perf_end(f"tool:{tool_name}", tool_start, user_id)
                  
                 tool_results.append({
                     "type": "function_call_output",
@@ -170,6 +184,7 @@ def execute_squash(tool_calls, response_id, user_id):
     # Send tool results back to OpenAI for final response (after all tools are executed)
     yield f"data: {json.dumps({'status': 'getting_final_response'})}\n\n"
 
+    final_openai_start = perf_logger.log_perf_start("openai.final_response", user_id)
     # Submit tool outputs by creating a new response with the tool results
     # tool_results is already in the correct format: [{"type": "function_call_output", "call_id": "...", "output": "..."}]
     final_stream = client.responses.create(
@@ -182,8 +197,12 @@ def execute_squash(tool_calls, response_id, user_id):
 
     final_response = ""
     final_response_id = None
+    final_first_event = False
 
     for event in final_stream:
+        if not final_first_event and hasattr(event, 'type'):
+            perf_logger.log_perf_end("openai.final_response", final_openai_start, user_id)
+            final_first_event = True
         if not hasattr(event, 'type'):
             continue
 

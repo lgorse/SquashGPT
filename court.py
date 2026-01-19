@@ -11,6 +11,7 @@ from dateutil import parser
 from dotenv import load_dotenv
 import re
 import login
+import perf_logger
 
 from flask import Flask, jsonify, request
 from selenium import webdriver
@@ -108,6 +109,7 @@ def parse_slot_time(separator, text):
 
 
 def find_slots(booking, driver):
+    start_time = perf_logger.log_perf_start("find_slots")
     booking_time = parser.parse(booking.time)
 
     print(f'Booking time: {booking_time.strftime("%-I:%M %p")} on {booking.date}')
@@ -127,16 +129,20 @@ def find_slots(booking, driver):
                 print(f"An error occurred: {str(e.message)}")
                 return None
         for element in elements:
-            start_time = parse_slot_time(" - ", element.get_attribute("title"))
-            if start_time.strftime("%-I:%M %p") == booking_time.strftime("%-I:%M %p"):
+            slot_time = parse_slot_time(" - ", element.get_attribute("title"))
+            if slot_time.strftime("%-I:%M %p") == booking_time.strftime("%-I:%M %p"):
+                perf_logger.log_perf_end("find_slots", start_time)
                 return element
+        perf_logger.log_perf_end("find_slots", start_time)
         return None
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        perf_logger.log_perf_end("find_slots", start_time)
         return None
 
 
 def reserve_slot(driver, element):
+    start_time = perf_logger.log_perf_start("reserve_slot")
     wait = WebDriverWait(driver, 10)
     driver.execute_script("arguments[0].click();", element)
     try:
@@ -156,16 +162,20 @@ def reserve_slot(driver, element):
         driver.execute_script("arguments[0].click();", button)
         try:
             status = booking_listener.confirm()
+            perf_logger.log_perf_end("reserve_slot", start_time)
             return True, "Booking Confirmed"
         except ToastError as e:
+            perf_logger.log_perf_end("reserve_slot", start_time)
             return False, e.toast_text
         except Exception as e:
+            perf_logger.log_perf_end("reserve_slot", start_time)
             if e.__class__.__name__ == "TimeoutException":
                 return True, "Booking successful"
             else:
                 print(f"Rats! Unexpected error: {e}")
                 return False, str(e)
     except Exception as e:
+        perf_logger.log_perf_end("reserve_slot", start_time)
         return False, str(e)
 
 
@@ -239,6 +249,7 @@ def book_slots(bookings, driver):
     return bookings
 
 def book_courts(data):
+    start_time = perf_logger.log_perf_start("book_courts")
     driver = squash.setup_driver()
     print(f"booking{data}")
     bookings = request_to_bookings(data)
@@ -249,13 +260,16 @@ def book_courts(data):
         confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
         response = json.dumps(confirmations_dict)
         print(response)
+        perf_logger.log_perf_end("book_courts", start_time)
         return response, 200
     except Exception as e:
+        perf_logger.log_perf_end("book_courts", start_time)
         return ({"status": "error", "message": str(e)}), 500
     finally:
         driver.quit()
 
 def my_reservations():
+    start_time = perf_logger.log_perf_start("my_reservations")
     driver = squash.setup_driver()
     try:
         load_dotenv()
@@ -269,14 +283,17 @@ def my_reservations():
             if (daily_booking):
                 bookings.append(daily_booking)
         bookings_dict = [booking.to_dict() for booking in bookings]
+        perf_logger.log_perf_end("my_reservations", start_time)
         return bookings_dict
     except Exception as e:
+        perf_logger.log_perf_end("my_reservations", start_time)
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         driver.quit() 
 
 
 def day_reservation(date, name, driver):
+    start_time = perf_logger.log_perf_start(f"day_reservation:{date}")
     try:
         columns = WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.slots"))
@@ -289,20 +306,24 @@ def day_reservation(date, name, driver):
                 for slot in slots:
                     title = slot.get_attribute("title")
                     if title and name in title:
-                        start_time = parse_slot_time(" - ", title)
-                        booking = Booking(date, start_time.strftime('%I:%M %p'), None, str(col_num))
+                        slot_time = parse_slot_time(" - ", title)
+                        booking = Booking(date, slot_time.strftime('%I:%M %p'), None, str(col_num))
                         print(f"Found a booking on {booking.date} at {booking.time} on Court {booking.court}")
+                        perf_logger.log_perf_end(f"day_reservation:{date}", start_time)
                         return booking, slot
             except TimeoutException as e:
                 print("No slot found")
             except NoSuchElementException as e:
                 print(f"An  error occurred: {str(e)}")
+        perf_logger.log_perf_end(f"day_reservation:{date}", start_time)
         return None, None
     except Exception as e:
         print(f"Error:{e}")
+        perf_logger.log_perf_end(f"day_reservation:{date}", start_time)
 
 
 def delete_booking(data):
+    start_time = perf_logger.log_perf_start("delete_booking")
     date = parser.parse(data.get("date")).strftime("%Y-%m-%d")
     if date:
         try:
@@ -320,10 +341,13 @@ def delete_booking(data):
             if booking:
                 print(f"Booking status:{booking.status} of booking on {booking.date} at {booking.time} for court {booking.court}")
                 response = json.dumps(booking.to_dict())
+                perf_logger.log_perf_end("delete_booking", start_time)
                 return response, 200
-            else: 
+            else:
+                perf_logger.log_perf_end("delete_booking", start_time)
                 return ({"status": "error", "message": "slot not found"}), 500
         except Exception as e:
+            perf_logger.log_perf_end("delete_booking", start_time)
             return ({"status": "error", "message": str(e)}), 500
         finally:
             driver.quit()
@@ -331,6 +355,7 @@ def delete_booking(data):
 
 
 def delete_slot(driver, slot):
+    start_time = perf_logger.log_perf_start("delete_slot")
     wait = WebDriverWait(driver, 5)
     driver.execute_script("arguments[0].click();", slot)
     booking_listener = BookingListener(driver)
@@ -356,17 +381,22 @@ def delete_slot(driver, slot):
         # Check for error toasts
         try:
             status = booking_listener.confirm()
+            perf_logger.log_perf_end("delete_slot", start_time)
             return True, "Cancellation Confirmed"
         except ToastError as e:
+            perf_logger.log_perf_end("delete_slot", start_time)
             return False, e.toast_text
         except TimeoutException:
+            perf_logger.log_perf_end("delete_slot", start_time)
             return True, "Cancellation successful"
     except (NoSuchElementException, TimeoutException) as e:
         error_type = "not found" if isinstance(e, NoSuchElementException) else "timeout"
         print(f"Delete element {error_type}: {str(e)}")
+        perf_logger.log_perf_end("delete_slot", start_time)
         return False, f"Delete element {error_type}"
     except Exception as e:
         print(f"Error with delete element: {e}")
+        perf_logger.log_perf_end("delete_slot", start_time)
         return False, str(e)
     
 
