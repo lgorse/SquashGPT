@@ -11,6 +11,7 @@ import court
 import login
 import gpt
 import perf_logger
+from session_manager import SessionManager
 
 import parsedatetime
 from dateutil import parser
@@ -24,6 +25,17 @@ from seleniumbase import Driver
 
 
 app = Flask(__name__)
+
+# Initialize session manager on app startup
+session_mgr = SessionManager.get_instance()
+
+@app.teardown_appcontext
+def cleanup_session(exception=None):
+    """Cleanup session on Flask app context teardown"""
+    if exception:
+        print(f"App context ended with exception: {exception}")
+    # Session manager has its own atexit cleanup, but we can also clean up here
+    # if we want to be more explicit about Flask lifecycle
 
 
 

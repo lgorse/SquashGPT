@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import re
 import login
 import perf_logger
+from session_manager import SessionManager
 
 from flask import Flask, jsonify, request
 from selenium import webdriver
@@ -250,12 +251,13 @@ def book_slots(bookings, driver):
 
 def book_courts(data):
     start_time = perf_logger.log_perf_start("book_courts")
-    driver = squash.setup_driver()
+    session_mgr = SessionManager.get_instance()
+    driver = session_mgr.get_driver()
     print(f"booking{data}")
     bookings = request_to_bookings(data)
     print(f"the data {bookings}")
     try:
-        login.login_to_clublocker(driver)
+        session_mgr.ensure_logged_in()
         confirmations = book_slots(bookings, driver)
         confirmations_dict = [confirmation.to_dict() for confirmation in confirmations]
         response = json.dumps(confirmations_dict)
@@ -265,18 +267,17 @@ def book_courts(data):
     except Exception as e:
         perf_logger.log_perf_end("book_courts", start_time)
         return ({"status": "error", "message": str(e)}), 500
-    finally:
-        driver.quit()
 
 def my_reservations():
     start_time = perf_logger.log_perf_start("my_reservations")
-    driver = squash.setup_driver()
+    session_mgr = SessionManager.get_instance()
+    driver = session_mgr.get_driver()
     try:
         load_dotenv()
         full_name=os.getenv('full_name')
         days = squash.booking_window()
         bookings = []
-        login.login_to_clublocker(driver)
+        session_mgr.ensure_logged_in()
         for day in days:
             squash.navigate_to_calendar(day, driver)
             daily_booking = day_reservation(day, full_name, driver)[0]
@@ -287,9 +288,7 @@ def my_reservations():
         return bookings_dict
     except Exception as e:
         perf_logger.log_perf_end("my_reservations", start_time)
-        return jsonify({"status": "error", "message": str(e)}), 500
-    finally:
-        driver.quit() 
+        return jsonify({"status": "error", "message": str(e)}), 500 
 
 
 def day_reservation(date, name, driver):
@@ -327,10 +326,11 @@ def delete_booking(data):
     date = parser.parse(data.get("date")).strftime("%Y-%m-%d")
     if date:
         try:
-            driver = squash.setup_driver()
+            session_mgr = SessionManager.get_instance()
+            driver = session_mgr.get_driver()
             load_dotenv()
             full_name=os.getenv('full_name')
-            login.login_to_clublocker(driver)
+            session_mgr.ensure_logged_in()
             squash.navigate_to_calendar(date, driver)
             print("got here")
             booking, slot = day_reservation(date, full_name, driver)
@@ -349,8 +349,6 @@ def delete_booking(data):
         except Exception as e:
             perf_logger.log_perf_end("delete_booking", start_time)
             return ({"status": "error", "message": str(e)}), 500
-        finally:
-            driver.quit()
         
 
 
