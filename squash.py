@@ -179,8 +179,8 @@ def main():
             data = {"bookings":
                     [
                         {
-                            "date": "2026-02-10",
-                            "time": "6:45 pm"
+                            "date": "2026-02-09",
+                            "time": "10:30 am"
                             }
                     ]
                 }
@@ -189,8 +189,8 @@ def main():
             }
             load_dotenv()
             full_name=os.getenv('full_name')
-            #response, status_code = court.book_courts(data)
-            response, status_code = court.delete_booking(date)
+            response, status_code = court.book_courts(data)
+            #response, status_code = court.delete_booking(date)
             print(f"Response: {response}, Status: {status_code}")
         except Exception as e:
             print(f"{e}")

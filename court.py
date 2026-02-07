@@ -65,7 +65,7 @@ class BookingListener:
 
     def confirm(self, timeout=2):
         """Wait for toast containing specific text"""
-        selector = ".mat-simple-snack-bar-content"
+        selector = ".mat-mdc-snack-bar-label"
         expected_options = [
             "There are empty spots",
             "maximum",
