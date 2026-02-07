@@ -173,14 +173,24 @@ def main():
         port = int(os.environ.get("PORT", 8080))
         app.run(host="0.0.0.0", port=port)
     else:
-        driver = setup_driver(args.mode)
-        try: 
-            date = "2026-01-19"
+        session_mgr = SessionManager.get_instance()
+        driver = session_mgr.get_driver(mode=args.mode)
+        try:
+            data = {"bookings":
+                    [
+                        {
+                            "date": "2026-02-10",
+                            "time": "6:45 pm"
+                            }
+                    ]
+                }
+            date = {
+                "date": "2026-02-10"
+            }
             load_dotenv()
             full_name=os.getenv('full_name')
-            login.login_to_clublocker(driver)
-            navigate_to_calendar(date, driver)
-            response, status_code = court.delete_booking({"date":date})
+            #response, status_code = court.book_courts(data)
+            response, status_code = court.delete_booking(date)
             print(f"Response: {response}, Status: {status_code}")
         except Exception as e:
             print(f"{e}")
@@ -190,7 +200,7 @@ def main():
             
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     main()
 
 

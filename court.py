@@ -157,7 +157,7 @@ def reserve_slot(driver, element):
         booking_listener = BookingListener(driver)
         button = wait.until(
             lambda driver: modal.find_element(
-                By.CSS_SELECTOR, "button.mat-raised-button"
+                By.CSS_SELECTOR, "button.mat-mdc-raised-button"
             )
         )
         driver.execute_script("arguments[0].click();", button)
@@ -199,7 +199,7 @@ def book_prime_time(modal, driver):
         try:
             player_input = wait.until(
                 lambda driver: modal.find_element(
-                    By.CSS_SELECTOR, 'input.mat-input-element:not([readonly="true"])'
+                    By.CSS_SELECTOR, 'input.mat-mdc-input-element:not([readonly="true"])'
                 )
             )
             player_input.clear()
@@ -362,7 +362,7 @@ def delete_slot(driver, slot):
         delete_button = wait.until(
             EC.element_to_be_clickable((
                 By.XPATH,
-                "//button[contains(@class, 'mat-raised-button')][.//span[normalize-space()='Delete']]"
+                "//button[contains(@class, 'mat-mdc-raised-button')][.//span[normalize-space()='Delete']]"
             ))
         )
         driver.execute_script("arguments[0].click();", delete_button)
@@ -371,7 +371,7 @@ def delete_slot(driver, slot):
         confirm_button = wait.until(
             EC.element_to_be_clickable((
                 By.XPATH,
-                "//button[contains(@class, 'mat-raised-button')][.//span[normalize-space()='Yes']]"
+                "//button[contains(@class, 'mat-mdc-raised-button')][.//span[normalize-space()='Yes']]"
             ))
         )
         driver.execute_script("arguments[0].click();", confirm_button)
