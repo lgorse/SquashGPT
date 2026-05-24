@@ -25,18 +25,20 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Booking:
-    def __init__(self, date, time, status=None, court=None):
+    def __init__(self, date, time, status=None, court=None, success=None):
         self.date = parser.parse(date).strftime("%Y-%m-%d")
         self.time = parser.parse(time).strftime("%-I:%M %p").lower()
         self.status = status
         self.court = self.extract_number(court)
+        self.success = success
 
     def to_dict(self):
         return {
             "date": self.date,
             "time": self.time,
             "status": self.status,
-            "court": self.court
+            "court": self.court,
+            "success": self.success
         }
     
     def extract_number(self, text):
@@ -242,7 +244,8 @@ def book_slots(bookings, driver):
         else:
             booking_status = (False, "No slots found")
         print(booking_status[1])
-        booking.status = booking_status[1]
+        booking.success = booking_status[0]  # Store success boolean
+        booking.status = booking_status[1]   # Store status message
 
     ##summarize booking
     for booking in bookings:
@@ -263,7 +266,25 @@ def book_courts(data):
         response = json.dumps(confirmations_dict)
         print(response)
         perf_logger.log_perf_end("book_courts", start_time)
-        return response, 200
+
+        # Determine HTTP status code based on results
+        # If all succeeded, return 200
+        # If any failed due to no slots, return 404
+        # If any failed due to business rules (toast errors), return 409
+        all_success = all(c.success for c in confirmations)
+        has_no_slots = any(c.status == "No slots found" for c in confirmations)
+        has_toast_errors = any(not c.success and c.status != "No slots found" for c in confirmations)
+
+        if all_success:
+            return response, 200
+        elif has_no_slots and not has_toast_errors:
+            return response, 404
+        elif has_toast_errors:
+            return response, 409
+        else:
+            # Mixed failures, use 409 for conflicts
+            return response, 409
+
     except Exception as e:
         perf_logger.log_perf_end("book_courts", start_time)
         return ({"status": "error", "message": str(e)}), 500
@@ -336,16 +357,24 @@ def delete_booking(data):
             booking, slot = day_reservation(date, full_name, driver)
             wait = WebDriverWait(driver, 5)
             if slot:
-                status, message = delete_slot(driver, slot)
+                success, message = delete_slot(driver, slot)
+                booking.success = success
                 booking.status = message
             if booking:
                 print(f"Booking status:{booking.status} of booking on {booking.date} at {booking.time} for court {booking.court}")
                 response = json.dumps(booking.to_dict())
                 perf_logger.log_perf_end("delete_booking", start_time)
-                return response, 200
+
+                # Return appropriate HTTP code
+                if booking.success:
+                    return response, 200
+                else:
+                    # Toast error or delete element issue (business rule violation)
+                    return response, 409
             else:
+                # Booking not found
                 perf_logger.log_perf_end("delete_booking", start_time)
-                return ({"status": "error", "message": "slot not found"}), 500
+                return ({"status": "error", "message": "slot not found"}), 404
         except Exception as e:
             perf_logger.log_perf_end("delete_booking", start_time)
             return ({"status": "error", "message": str(e)}), 500
