@@ -1,3 +1,6 @@
+# Fix tkinter issue before any other imports
+import fix_tkinter
+
 import argparse
 import getpass
 import json
