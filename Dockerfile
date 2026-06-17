@@ -11,6 +11,10 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     python3-tk \
     python3-dev \
+    scrot \
+    python3-xlib \
+    xdotool \
+    x11-utils \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
