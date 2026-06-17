@@ -55,5 +55,6 @@ RUN chown -R seluser:seluser /app
 # Switch back to seluser (the default user for selenium image)
 USER seluser
 
-# Run the application
-CMD ["python3", "squash.py", "--mode", "prod"]
+# Start xvfb and run the application
+CMD sh -c "Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp -nolisten unix &\
+ sleep 2 && python3 squash.py --mode prod"
