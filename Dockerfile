@@ -8,7 +8,6 @@ USER root
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
-    python3-venv \
     python3-tk \
     python3-dev \
     xvfb \
@@ -19,18 +18,15 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a virtual environment with system site packages access
-RUN python3 -m venv --system-site-packages /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
 WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
-# Fix SeleniumBase driver permissions
-RUN chmod -R 777 /opt/venv/lib/python3.14/site-packages/seleniumbase/drivers || true
+# Fix SeleniumBase driver permissions (install location varies)
+RUN chmod -R 777 /usr/local/lib/python*/site-packages/seleniumbase/drivers 2>/dev/null || \
+    chmod -R 777 /usr/lib/python*/site-packages/seleniumbase/drivers 2>/dev/null || true
 
 # Copy application files and startup script
 COPY . .
@@ -39,16 +35,13 @@ RUN chmod +x /app/start.sh
 
 # Create writable cache directories for selenium and seleniumbase
 RUN mkdir -p /home/seluser/.cache/selenium && \
-    mkdir -p /tmp/sb_driver_cache && \
     chown -R seluser:seluser /home/seluser/.cache && \
-    chmod -R 777 /home/seluser/.cache && \
-    chmod -R 777 /tmp/sb_driver_cache
+    chmod -R 777 /home/seluser/.cache
 
 # Set environment variables
 ENV CHROME_BIN=/usr/bin/google-chrome
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV SB_DRIVER_CACHE=/tmp/sb_driver_cache
 
 # Create app directory owned by seluser and X11 socket directory
 RUN chown -R seluser:seluser /app && \
