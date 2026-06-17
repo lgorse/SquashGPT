@@ -20,11 +20,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install Python dependencies
+# Copy requirements first
 COPY requirements.txt .
-RUN python3 -m pip install -r requirements.txt
 
-# Fix SeleniumBase driver permissions (install location varies)
+# Install Python dependencies as root to system site-packages
+RUN python3 -m pip install --break-system-packages -r requirements.txt
+
+# Fix SeleniumBase driver permissions
 RUN chmod -R 777 /usr/local/lib/python*/site-packages/seleniumbase/drivers 2>/dev/null || \
     chmod -R 777 /usr/lib/python*/site-packages/seleniumbase/drivers 2>/dev/null || true
 
