@@ -53,10 +53,11 @@ def setup_driver(mode=None):
         use_headless = True
         print(f"DEBUG: FORCE_HEADLESS=true, using headless mode (local dev only)")
     else:
-        # Production: use xvfb (virtual display on Linux, visible on Mac)
-        use_xvfb = (mode != "browser")
+        # Production: Xvfb started manually in Dockerfile, don't let SB manage it
+        # Browser mode on Mac: show actual browser
+        use_xvfb = False
         use_headless = False
-        print(f"DEBUG: mode={mode}, use_xvfb={use_xvfb}")
+        print(f"DEBUG: mode={mode}, xvfb managed externally, use_xvfb=False")
 
     # Build chromium arguments list
     chromium_args = []
