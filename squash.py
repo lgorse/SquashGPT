@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 
 from flask import Flask, jsonify, request
 
-from seleniumbase import Driver
+from seleniumbase import SB
 
 
 
@@ -43,20 +43,25 @@ def setup_driver(mode=None):
     start_time = perf_logger.log_perf_start("setup_driver")
     print(f"Setting up Chrome WebDriver with SeleniumBase UC Mode {mode}")
 
-    headless = not mode == "browser"
+    # Check for local headless override (Mac dev environment)
+    load_dotenv()
+    force_headless = os.getenv("FORCE_HEADLESS", "false").lower() == "true"
+
+    if force_headless:
+        # Local dev: use true headless (may not bypass Cloudflare)
+        use_xvfb = False
+        use_headless = True
+        print(f"DEBUG: FORCE_HEADLESS=true, using headless mode (local dev only)")
+    else:
+        # Production: use xvfb (virtual display on Linux, visible on Mac)
+        use_xvfb = (mode != "browser")
+        use_headless = False
+        print(f"DEBUG: mode={mode}, use_xvfb={use_xvfb}")
 
     # Build chromium arguments list
     chromium_args = []
     chromium_args.append("--disable-dev-shm-usage")
-    chromium_args.append("--enable-logging")
-    chromium_args.append("--enable-javascript")
-    # Force Chrome to not use any user data directory
-    chromium_args.append("--no-first-run")
-    chromium_args.append("--no-default-browser-check")
-    chromium_args.append("--disable-default-apps")
-    chromium_args.append("--disable-extensions")
-
-    # Memory optimization (CRITICAL for Railway)
+    chromium_args.append("--disable-blink-features=AutomationControlled")
     chromium_args.append("--memory-pressure-off")
     chromium_args.append("--max_old_space_size=2048")
     chromium_args.append("--no-zygote")
@@ -64,22 +69,23 @@ def setup_driver(mode=None):
     chromium_args.append("--disable-backgrounding-occluded-windows")
     chromium_args.append("--disable-renderer-backgrounding")
 
-    # Additional bot detection evasion
-    chromium_args.append("--disable-blink-features=AutomationControlled")
-
-    # Use SeleniumBase Driver with UC mode for better Cloudflare evasion
-    driver = Driver(
-        uc=True,  # Enable undetected mode (uses undetected-chromedriver internally)
-        headless=headless,
-        log_cdp=False,
-        no_sandbox=True,
-        disable_gpu=True,
-        incognito=False,
+    # Use SB() context manager for UC mode with persistent session
+    sb_context = SB(
+        uc=True,  # Enable UC mode for Cloudflare bypass
+        xvfb=use_xvfb,  # Virtual display (Linux) or visible (Mac)
+        headless=use_headless,  # True headless for local dev only
+        test=True,  # Keep session open for persistent driver
         chromium_arg=",".join(chromium_args)
     )
 
+    # Enter context to get actual SB instance
+    sb = sb_context.__enter__()  # Returns the actual SB instance with methods
+
+    # Store context manager reference for proper cleanup
+    sb._sb_context = sb_context
+
     perf_logger.log_perf_end("setup_driver", start_time)
-    return driver
+    return sb  # Return SB instance (has driver as sb.driver)
 
 def booking_window():
     today = datetime.today()
@@ -179,14 +185,11 @@ def main():
             data = {"bookings":
                     [
                         {
-                            "date": "2026-02-09",
-                            "time": "10:30 am"
+                            "date": "2026-06-20",
+                            "time": "2:15 pm"
                             }
                     ]
                 }
-            date = {
-                "date": "2026-02-10"
-            }
             load_dotenv()
             full_name=os.getenv('full_name')
             response, status_code = court.book_courts(data)

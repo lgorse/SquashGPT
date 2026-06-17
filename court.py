@@ -255,7 +255,8 @@ def book_slots(bookings, driver):
 def book_courts(data):
     start_time = perf_logger.log_perf_start("book_courts")
     session_mgr = SessionManager.get_instance()
-    driver = session_mgr.get_driver()
+    sb = session_mgr.get_driver()  # Returns SB instance
+    driver = sb.driver  # Get underlying selenium driver
     print(f"booking{data}")
     bookings = request_to_bookings(data)
     print(f"the data {bookings}")
@@ -292,7 +293,8 @@ def book_courts(data):
 def my_reservations():
     start_time = perf_logger.log_perf_start("my_reservations")
     session_mgr = SessionManager.get_instance()
-    driver = session_mgr.get_driver()
+    sb = session_mgr.get_driver()  # Returns SB instance
+    driver = sb.driver  # Get underlying selenium driver
     try:
         load_dotenv()
         full_name=os.getenv('full_name')
@@ -348,7 +350,8 @@ def delete_booking(data):
     if date:
         try:
             session_mgr = SessionManager.get_instance()
-            driver = session_mgr.get_driver()
+            sb = session_mgr.get_driver()  # Returns SB instance
+            driver = sb.driver  # Get underlying selenium driver
             load_dotenv()
             full_name=os.getenv('full_name')
             session_mgr.ensure_logged_in()

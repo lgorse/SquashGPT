@@ -12,85 +12,65 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-def login_to_clublocker(driver):
+def login_to_clublocker(sb):
     start_time = perf_logger.log_perf_start("login_to_clublocker")
-    # Get credentials securely
     timeout = 10
     load_dotenv()
     username = os.getenv("username")
     password = os.getenv("password")
 
     try:
-        # Navigate to the website
-        print("Navigating to clublocker.com...")
+        # Navigate using UC mode with reconnect for stealth
+        print("Navigating to clublocker.com with UC reconnect...")
         nav_start = perf_logger.log_perf_start("login:navigate_to_site")
-        driver.get("https://clublocker.com/")
+        sb.uc_open_with_reconnect("https://clublocker.com/", reconnect_time=4)
         perf_logger.log_perf_end("login:navigate_to_site", nav_start)
 
-        username_field = None
-        password_field = None
-        try:
-            username_selector = "//input[@name='username']"
-            username_field = WebDriverWait(driver, timeout).until(
-                EC.presence_of_element_located((By.XPATH, username_selector))
-            )
-        except Exception as error:
-            print(f"Error type: {type(error).__name__} on username")
-            return error
+        # Find and fill login fields
+        print("Finding login fields...")
+        username_field = WebDriverWait(sb.driver, timeout).until(
+            EC.presence_of_element_located((By.XPATH, "//input[@name='username']"))
+        )
+        password_field = sb.driver.find_element(By.XPATH, "//input[@name='password']")
 
-        try:
-            password_selector = "//input[@name='password']"
-            password_field = driver.find_element(By.XPATH, password_selector)
+        print("Entering credentials...")
+        username_field.clear()
+        username_field.send_keys(username)
+        password_field.clear()
+        password_field.send_keys(password)
 
-           ## password_field = WebDriverWait(driver, timeout).until(
-           ##     EC.presence_of_element_located((By.XPATH, password_selector))
-           ## )
-        except Exception as error:
-            print(f"Error type: {type(error).__name__} on password")
-            return error
+        # Click login button
+        print("Clicking login button...")
+        login_click_start = perf_logger.log_perf_start("login:submit_and_wait")
+        current_url = sb.driver.current_url
+        login_button = sb.driver.find_element(By.XPATH, "//button[@type='submit']")
+        login_button.click()
 
-        if username_field and password_field:
-            print("Found login fields, entering credentials...")
+        # Cloudflare challenge appears AFTER login click
+        print("Checking for Cloudflare challenge after login...")
+        time.sleep(3)
 
-            # Clear fields and enter credentials
-            username_field.clear()
-            username_field.send_keys(username)
-
-            password_field.clear()
-            password_field.send_keys(password)
-
-            login_element = None
+        captcha_frames = sb.driver.find_elements(By.CSS_SELECTOR, "iframe")
+        if captcha_frames:
+            print(f"Cloudflare challenge detected ({len(captcha_frames)} iframes), attempting bypass...")
             try:
-                login_selector = "//button[@type='submit']"
-                login_element = driver.find_element (By.XPATH, login_selector)
-                # login_element = WebDriverWait(driver, timeout).until(
-                #     EC.presence_of_element_located((By.XPATH, login_selector))
-                # )
-            except Exception as error:
-                print(f"Error type: {type(error).__name__} on submit CTA")
-                return error
-
-            if login_element:
-                print("Found login element, clicking...")
-                login_click_start = perf_logger.log_perf_start("login:submit_and_wait")
-                login_element.click()
-                # Check if login was successful (you may need to customize this)
-                current_url = driver.current_url
-                WebDriverWait(driver, timeout).until(EC.url_changes(current_url))
-                perf_logger.log_perf_end("login:submit_and_wait", login_click_start)
-                print(f"Current URL after login attempt: {current_url}")
-                perf_logger.log_perf_end("login_to_clublocker", start_time)
-            else:
-                print("Could not find submit button")
-                perf_logger.log_perf_end("login_to_clublocker", start_time)
-
+                sb.uc_gui_click_cf()
+                time.sleep(3)
+                print("Challenge bypass attempted")
+            except Exception as e:
+                print(f"Challenge bypass error: {type(e).__name__}")
         else:
-            print("Could not find username and/or password fields")
-            print(
-                "You may need to manually inspect the website and update the selectors"
-            )
-            perf_logger.log_perf_end("login_to_clublocker", start_time)
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+            print("No Cloudflare challenge detected")
+
+        # Wait for URL to change (successful login redirects away from login page)
+        print("Waiting for redirect...")
+        WebDriverWait(sb.driver, 20).until(EC.url_changes(current_url))
+        perf_logger.log_perf_end("login:submit_and_wait", login_click_start)
+
+        print(f"Login successful. Current URL: {sb.driver.current_url}")
         perf_logger.log_perf_end("login_to_clublocker", start_time)
-        return e
+
+    except Exception as e:
+        print(f"Login failed: {type(e).__name__}: {str(e)}")
+        perf_logger.log_perf_end("login_to_clublocker", start_time)
+        raise e  # Raise exception instead of returning it

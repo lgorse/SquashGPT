@@ -75,9 +75,14 @@ class SessionManager:
         if not self.is_logged_in or self._is_session_expired():
             perf_logger.log_perf("session_manager", "Session expired, re-authenticating")
             start_time = perf_logger.log_perf_start("session:re-login")
-            login.login_to_clublocker(self.driver)
-            self.is_logged_in = True
-            perf_logger.log_perf_end("session:re-login", start_time)
+            try:
+                login.login_to_clublocker(self.driver)
+                self.is_logged_in = True
+                perf_logger.log_perf_end("session:re-login", start_time)
+            except Exception as e:
+                perf_logger.log_perf_end("session:re-login", start_time)
+                self.is_logged_in = False
+                raise e  # Propagate login failure
         else:
             perf_logger.log_perf("session_manager", "Session active, skipping login")
 
@@ -101,7 +106,9 @@ class SessionManager:
             if self.driver is None:
                 return True
 
-            current_url = self.driver.current_url.lower()
+            # self.driver is SB instance, need underlying driver
+            driver = self.driver.driver if hasattr(self.driver, 'driver') else self.driver
+            current_url = driver.current_url.lower()
             # If we're on the login page, session expired
             if "login" in current_url and "reservations" not in current_url:
                 return True
@@ -116,8 +123,10 @@ class SessionManager:
             if self.driver is None:
                 return False
 
+            # self.driver is SB instance, need underlying driver
+            driver = self.driver.driver if hasattr(self.driver, 'driver') else self.driver
             # Try to get current URL as health check
-            _ = self.driver.current_url
+            _ = driver.current_url
             return True
         except WebDriverException as e:
             perf_logger.log_perf("session_manager", f"Driver unhealthy: {str(e)}")
@@ -125,18 +134,29 @@ class SessionManager:
 
     def _reset_session(self, mode=None):
         """Force creation of new driver and login session"""
-        # Cleanup old driver
+        # Cleanup old driver (SB context)
         if self.driver is not None:
             try:
-                self.driver.quit()
+                # Use stored context manager for proper cleanup
+                if hasattr(self.driver, '_sb_context'):
+                    self.driver._sb_context.__exit__(None, None, None)
+                elif hasattr(self.driver, '__exit__'):
+                    self.driver.__exit__(None, None, None)
+                else:
+                    self.driver.quit()
             except Exception as e:
                 perf_logger.log_perf("session_manager", f"Error quitting old driver: {str(e)}")
 
-        # Create new driver
+        # Create new driver and login
         start_time = perf_logger.log_perf_start("session:full_reset")
         self.driver = squash.setup_driver(mode)
-        login.login_to_clublocker(self.driver)
-        self.is_logged_in = True
+        try:
+            login.login_to_clublocker(self.driver)
+            self.is_logged_in = True
+        except Exception as e:
+            self.is_logged_in = False
+            perf_logger.log_perf_end("session:full_reset", start_time)
+            raise e  # Propagate login failure
         self.request_count = 0
         perf_logger.log_perf_end("session:full_reset", start_time)
 
@@ -151,7 +171,13 @@ class SessionManager:
         if self.driver is not None:
             try:
                 perf_logger.log_perf("session_manager", "Cleaning up driver on shutdown")
-                self.driver.quit()
+                # Use stored context manager for proper cleanup
+                if hasattr(self.driver, '_sb_context'):
+                    self.driver._sb_context.__exit__(None, None, None)
+                elif hasattr(self.driver, '__exit__'):
+                    self.driver.__exit__(None, None, None)
+                else:
+                    self.driver.quit()
                 self.driver = None
             except Exception as e:
                 print(f"Error during cleanup: {str(e)}")
