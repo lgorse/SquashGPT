@@ -4,11 +4,13 @@ FROM selenium/standalone-chrome:latest
 # Switch to root to fix permissions and install Python
 USER root
 
-# Install Python
+# Install Python and PyAutoGUI dependencies
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
+    python3-tk \
+    python3-dev \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
