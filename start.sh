@@ -19,6 +19,13 @@ if ! ps -p $XVFB_PID > /dev/null; then
 fi
 
 echo "Xvfb started successfully on display :99"
+
+# Debug: Check if tkinter is accessible
+echo "Checking Python and tkinter installation..."
+python3 --version
+python3 -c "import tkinter; print('✓ tkinter found')" || echo "✗ tkinter NOT found"
+python3 -c "import _tkinter; print('✓ _tkinter found')" || echo "✗ _tkinter NOT found"
+
 echo "Starting Flask application..."
 
 # Run the Flask app
