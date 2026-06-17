@@ -25,9 +25,8 @@ COPY requirements.txt .
 # Install Python dependencies as root to system site-packages
 RUN python3 -m pip install --break-system-packages -r requirements.txt
 
-# Fix SeleniumBase driver permissions
-RUN chmod -R 777 /usr/local/lib/python*/site-packages/seleniumbase/drivers 2>/dev/null || \
-    chmod -R 777 /usr/lib/python*/site-packages/seleniumbase/drivers 2>/dev/null || true
+# Fix SeleniumBase driver permissions in base image venv
+RUN chmod -R 777 /home/seluser/venv/lib/python*/site-packages/seleniumbase/drivers 2>/dev/null || true
 
 # Copy application files and startup script
 COPY . .
