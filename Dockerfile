@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     python3-tk \
     python3-dev \
+    xvfb \
     scrot \
     python3-xlib \
     xdotool \
@@ -44,7 +45,6 @@ RUN mkdir -p /home/seluser/.cache/selenium && \
 
 # Set environment variables
 ENV CHROME_BIN=/usr/bin/google-chrome
-ENV DISPLAY=:99
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV SB_DRIVER_CACHE=/tmp/sb_driver_cache
@@ -55,6 +55,5 @@ RUN chown -R seluser:seluser /app
 # Switch back to seluser (the default user for selenium image)
 USER seluser
 
-# Start xvfb and run the application
-CMD sh -c "Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp -nolisten unix &\
- sleep 2 && python3 squash.py --mode prod"
+# Run the application
+CMD ["python3", "squash.py", "--mode", "prod"]
