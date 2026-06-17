@@ -53,11 +53,11 @@ def setup_driver(mode=None):
         use_headless = True
         print(f"DEBUG: FORCE_HEADLESS=true, using headless mode (local dev only)")
     else:
-        # Production/Mac: Let SeleniumBase manage xvfb
-        # xvfb=True on Linux creates virtual display, on Mac shows browser (xvfb unavailable)
-        use_xvfb = (mode != "browser")
+        # Production: xvfb started by start.sh, don't let SeleniumBase manage it
+        # Mac browser mode: show actual browser window
+        use_xvfb = False
         use_headless = False
-        print(f"DEBUG: mode={mode}, use_xvfb={use_xvfb}")
+        print(f"DEBUG: mode={mode}, xvfb managed by start.sh, use_xvfb=False")
 
     # Build chromium arguments list
     chromium_args = []

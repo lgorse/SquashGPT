@@ -25,7 +25,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /app
 
-
 # Install Python dependencies
 COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
@@ -33,8 +32,10 @@ RUN python3 -m pip install -r requirements.txt
 # Fix SeleniumBase driver permissions
 RUN chmod -R 777 /opt/venv/lib/python3.14/site-packages/seleniumbase/drivers || true
 
-# Copy application files
+# Copy application files and startup script
 COPY . .
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Create writable cache directories for selenium and seleniumbase
 RUN mkdir -p /home/seluser/.cache/selenium && \
@@ -49,11 +50,13 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV SB_DRIVER_CACHE=/tmp/sb_driver_cache
 
-# Create app directory owned by seluser
-RUN chown -R seluser:seluser /app
+# Create app directory owned by seluser and X11 socket directory
+RUN chown -R seluser:seluser /app && \
+    mkdir -p /tmp/.X11-unix && \
+    chmod 1777 /tmp/.X11-unix
 
 # Switch back to seluser (the default user for selenium image)
 USER seluser
 
-# Run the application (SeleniumBase manages xvfb)
-CMD ["python3", "squash.py", "--mode", "prod"]
+# Run the startup script
+CMD ["/app/start.sh"]
