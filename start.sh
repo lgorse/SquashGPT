@@ -2,6 +2,12 @@
 set -e
 
 echo "Starting Xvfb..."
+
+# Clean up any stale lock files from previous runs
+rm -f /tmp/.X99-lock /tmp/.X11-unix/X99
+pkill -9 Xvfb 2>/dev/null || true
+sleep 1
+
 # Start Xvfb on display :99
 Xvfb :99 -screen 0 1920x1080x24 -ac -nolisten tcp -nolisten unix &
 XVFB_PID=$!
