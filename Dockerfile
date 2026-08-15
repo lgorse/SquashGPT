@@ -4,50 +4,52 @@ FROM selenium/standalone-chrome:latest
 # Switch to root to fix permissions and install Python
 USER root
 
-# Install Python
+# Install Python and PyAutoGUI dependencies
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
-    python3-venv \
+    python3-dev \
+    xvfb \
+    scrot \
+    python3-xlib \
+    xdotool \
+    x11-utils \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a virtual environment
-RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
 WORKDIR /app
 
-
-# Install Python dependencies
+# Copy requirements first
 COPY requirements.txt .
-RUN python3 -m pip install -r requirements.txt
 
-# Fix SeleniumBase driver permissions
-RUN chmod -R 777 /opt/venv/lib/python3.14/site-packages/seleniumbase/drivers || true
+# Install Python dependencies as root to system site-packages
+RUN python3 -m pip install --break-system-packages -r requirements.txt
 
-# Copy application files
+# Fix SeleniumBase driver permissions in base image venv
+RUN chmod -R 777 /home/seluser/venv/lib/python*/site-packages/seleniumbase/drivers 2>/dev/null || true
+
+# Copy application files and startup script
 COPY . .
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Create writable cache directories for selenium and seleniumbase
 RUN mkdir -p /home/seluser/.cache/selenium && \
-    mkdir -p /tmp/sb_driver_cache && \
     chown -R seluser:seluser /home/seluser/.cache && \
-    chmod -R 777 /home/seluser/.cache && \
-    chmod -R 777 /tmp/sb_driver_cache
+    chmod -R 777 /home/seluser/.cache
 
 # Set environment variables
 ENV CHROME_BIN=/usr/bin/google-chrome
-ENV DISPLAY=:99
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV SB_DRIVER_CACHE=/tmp/sb_driver_cache
 
-# Create app directory owned by seluser
-RUN chown -R seluser:seluser /app
+# Create app directory owned by seluser and X11 socket directory
+RUN chown -R seluser:seluser /app && \
+    mkdir -p /tmp/.X11-unix && \
+    chmod 1777 /tmp/.X11-unix
 
 # Switch back to seluser (the default user for selenium image)
 USER seluser
 
-# Run the application
-CMD ["python3", "squash.py", "--mode", "prod"]
+# Run the startup script
+CMD ["/app/start.sh"]
